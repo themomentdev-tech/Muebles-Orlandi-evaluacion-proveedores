@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación Comparativa de Proveedores</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ===== DARK THEME (default) ===== */
+  :root {
+    --bg: #0d0f14;
+    --surface: #13161e;
+    --surface2: #1a1e29;
+    --border: #252a38;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #4f9eff;
+    --accent2: #7c3aed;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --green: #22c55e;
+    --red-bg: rgba(239,68,68,0.12);
+    --yellow-bg: rgba(245,158,11,0.12);
+    --green-bg: rgba(34,197,94,0.12);
+  }
+
+  /* ===== LIGHT THEME: azul · naranja · blanco ===== */
+  [data-theme="light"] {
+    --bg: #ffffff;
+    --surface: #f0f5ff;
+    --surface2: #e3eeff;
+    --border: #b8cef5;
+    --text: #0a1a3a;
+    --muted: #4a6fa5;
+    --accent: #1a5fbd;
+    --accent2: #e8650a;
+    --red: #dc2626;
+    --yellow: #d97706;
+    --green: #16a34a;
+    --red-bg: rgba(220,38,38,0.08);
+    --yellow-bg: rgba(217,119,6,0.1);
+    --green-bg: rgba(22,163,74,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(79,158,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,158,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .header-left h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    color: var(--text);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .header-left h1 span { color: var(--accent); }
+
+  .header-left p {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .badge {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 100px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    margin-top: 0.5rem;
+    display: inline-block;
+  }
+
+  /* Layout */
+  .layout { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+
+  /* Panel */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--surface2);
+  }
+
+  .panel-header .icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .icon-blue { background: rgba(79,158,255,0.15); }
+  .icon-purple { background: rgba(124,58,237,0.15); }
+  .icon-green { background: rgba(34,197,94,0.15); }
+
+  .panel-header h2 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .panel-header p { font-size: 0.75rem; color: var(--muted); }
+
+  .panel-body { padding: 1.5rem; }
+
+  /* Form grid */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  input, select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.6rem 0.85rem;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.875rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+    width: 100%;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(79,158,255,0.1);
+  }
+
+  select option { background: #1a1e29; }
+
+  /* Score selector */
+  .score-group { display: flex; gap: 0.4rem; }
+
+  .score-btn {
+    flex: 1;
+    padding: 0.55rem 0;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .score-btn:hover { border-color: var(--accent); color: var(--text); }
+  .score-btn.active-1 { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+  .score-btn.active-2 { background: var(--yellow-bg); border-color: var(--yellow); color: var(--yellow); }
+  .score-btn.active-3 { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+
+  .score-hint {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 0.25rem;
+    min-height: 1rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Submit button */
+  .btn-add {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: white;
+    border: none;
+    padding: 0.7rem 1.75rem;
+    border-radius: 9px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .btn-add:hover { opacity: 0.9; }
+  .btn-add:active { transform: scale(0.98); }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+  }
+
+  .empty .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; }
+  .empty p { font-size: 0.85rem; }
+
+  /* Insumo groups */
+  .insumo-block { margin-bottom: 1.5rem; }
+  .insumo-block:last-child { margin-bottom: 0; }
+
+  .insumo-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 0.6rem 1rem;
+    background: var(--surface2);
+    border-radius: 10px;
+    border-left: 3px solid var(--accent);
+  }
+
+  .insumo-title .code {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    background: rgba(79,158,255,0.1);
+    color: var(--accent);
+    padding: 0.2rem 0.55rem;
+    border-radius: 5px;
+    letter-spacing: 0.05em;
+  }
+
+  .insumo-title .name { font-weight: 600; font-size: 0.9rem; }
+  .insumo-title .count { font-size: 0.75rem; color: var(--muted); margin-left: auto; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+
+  thead th {
+    background: var(--surface2);
+    padding: 0.65rem 0.85rem;
+    text-align: left;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+  }
+
+  thead th:last-child { text-align: center; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  tbody td {
+    padding: 0.7rem 0.85rem;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  .td-date { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.75rem; }
+  .td-proveedor { font-weight: 600; }
+  .td-price {
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 5px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .chip-1 { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .chip-2 { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(245,158,11,0.2); }
+  .chip-3 { background: var(--green-bg); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+
+  /* Score badge */
+  .score-cell { text-align: center; }
+
+  .score-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.9rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .score-low { background: var(--red-bg); color: var(--red); border: 2px solid var(--red); }
+  .score-mid { background: var(--yellow-bg); color: var(--yellow); border: 2px solid var(--yellow); }
+  .score-high { background: var(--green-bg); color: var(--green); border: 2px solid var(--green); }
+
+  /* Winner row */
+  .winner-row td:first-child { position: relative; }
+  .winner-row td:first-child::before {
+    content: '★';
+    position: absolute;
+    left: -2px;
+    color: var(--yellow);
+    font-size: 0.7rem;
+  }
+
+  /* Legend */
+  .legend {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .legend-item { }
+
+  .legend-param {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .legend-scores { display: flex; flex-direction: column; gap: 0.25rem; }
+
+  .legend-score {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-red { background: var(--red); }
+  .dot-yellow { background: var(--yellow); }
+  .dot-green { background: var(--green); }
+
+  /* Delete btn */
+  .btn-del {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .btn-del:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+  /* Stats bar */
+  .stats-bar {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.85rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .stat { text-align: center; }
+  .stat-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .stat-label { font-size: 0.68rem; color: var(--muted); margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .sep { width: 1px; background: var(--border); align-self: stretch; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--surface2);
+    border: 1px solid var(--green);
+    color: var(--green);
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 100;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .app { padding: 1rem; }
+    .header-left h1 { font-size: 1.6rem; }
+    .form-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* Animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .insumo-block { animation: fadeIn 0.3s ease; }
+
+  /* Collapsible body */
+  .group-body {
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
+  }
+
+  .needs-validation { border-color: var(--red) !important; }
+  @keyframes loadPulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .min-note {
+    font-size: 0.72rem;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 0.5rem 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .min-note span { color: var(--yellow); font-weight: 600; }
+
+  .sug-item {
+    padding: 0.5rem 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+  }
+  .sug-item:last-child { border-bottom: none; }
+  .sug-item:hover { background: rgba(79,158,255,0.08); }
+
+
+  /* ===== THEME TOGGLE ===== */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .toggle-track {
+    position: relative;
+    width: 52px;
+    height: 26px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .toggle-thumb {
+    position: absolute;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 1;
+  }
+
+  [data-theme="light"] .toggle-thumb {
+    transform: translateX(26px);
+    background: var(--accent2);
+  }
+
+  .toggle-icon {
+    position: absolute;
+    font-size: 11px;
+    line-height: 1;
+    z-index: 2;
+    transition: opacity 0.2s;
+  }
+
+  .dark-icon { left: 6px; }
+  .light-icon { right: 6px; }
+
+  [data-theme="light"] .dark-icon { opacity: 0.3; }
+  [data-theme="light"] .light-icon { opacity: 1; }
+  :root:not([data-theme="light"]) .dark-icon { opacity: 1; }
+  :root:not([data-theme="light"]) .light-icon { opacity: 0.3; }
+
+  .toggle-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    min-width: 42px;
+  }
+
+  /* Light theme specific overrides */
+  [data-theme="light"] body::before {
+    background-image:
+      linear-gradient(rgba(26,95,189,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(26,95,189,0.06) 1px, transparent 1px);
+  }
+
+  [data-theme="light"] .btn-add {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+  }
+
+  [data-theme="light"] .insumo-title {
+    border-left-color: var(--accent2);
+  }
+
+  [data-theme="light"] .insumo-title .code {
+    background: rgba(26,95,189,0.1);
+  }
+
+  [data-theme="light"] .header-left h1 span {
+    color: var(--accent2);
+  }
+
+  [data-theme="light"] .badge {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+  }
+
+  [data-theme="light"] .icon-blue { background: rgba(26,95,189,0.1); }
+  [data-theme="light"] .icon-purple { background: rgba(232,101,10,0.1); }
+  [data-theme="light"] .icon-green { background: rgba(22,163,74,0.1); }
+
+  [data-theme="light"] select option { background: #f0f5ff; color: #0a1a3a; }
+
+  [data-theme="light"] .stat-val { color: var(--accent); }
+
+  [data-theme="light"] #sugerencias,
+  [data-theme="light"] #provSugerencias {
+    border-color: var(--accent) !important;
+  }
+  /* ===== END THEME TOGGLE ===== */
+
+
+  .btn-hist {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    margin-right: 4px;
+  }
+  .btn-hist:hover { border-color: var(--accent); background: rgba(79,158,255,0.1); }
+
+  .hist-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 80px 80px;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    font-size: 0.82rem;
+  }
+  .hist-row:last-child { border-bottom: none; }
+  .hist-row.hist-header {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--muted);
+    background: var(--surface2);
+    border-radius: 8px 8px 0 0;
+  }
+  .hist-bar-wrap { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; flex:1; }
+  .hist-bar { height: 100%; border-radius: 3px; transition: width 0.4s; }
+
+  #modalDup, #modalHist { display: none; }
+  #modalDup.open, #modalHist.open { display: flex; }
+
+  /* ===== NAV BUTTONS ===== */
+  .nav-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .nav-btn:hover, .nav-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  [data-theme="light"] .nav-btn { background: #e3eeff; }
+  [data-theme="light"] .nav-btn:hover, [data-theme="light"] .nav-btn.active { background: var(--accent); color: #fff; }
+
+  /* ===== SIDE PANEL ===== */
+  .side-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 400;
+  }
+  .side-overlay.open { display: block; }
+  .side-panel {
+    position: fixed;
+    top: 0; right: -340px;
+    width: 320px;
+    height: 100vh;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    z-index: 401;
+    transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+  .side-panel.open { right: 0; }
+
+  /* ===== PROVEEDORES VIEW ===== */
+  .view-section { display: none; }
+  .view-section.active { display: block; }
+
+  .prov-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: border-color 0.15s;
+  }
+  .prov-card:hover { border-color: var(--accent); }
+  .prov-avatar {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    color: white;
+    font-weight: 700;
+    font-family: 'DM Mono', monospace;
+  }
+  .prov-info { flex: 1; min-width: 0; }
+  .prov-name { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 0.2rem; }
+  .prov-meta { font-size: 0.75rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .prov-stats { font-size: 0.72rem; color: var(--accent); margin-top: 0.3rem; }
+  .prov-actions { display: flex; gap: 0.4rem; align-items: center; }
+
+  .btn-prov-hist {
+    background: rgba(79,158,255,0.1);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: 'Outfit', sans-serif;
+  }
+  .btn-prov-del {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .btn-prov-del:hover { border-color: var(--red); color: var(--red); background: var(--red-bg); }
+
+  /* Form agregar proveedor */
+  .prov-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Modal historial proveedor completo */
+  .hist-prov-insumo {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .hist-prov-insumo-title {
+    background: var(--surface2);
+    padding: 0.65rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+  /* ===== END NEW CSS ===== */
+
+  /* ===== HAMBURGER ===== */
+  .hamburger-btn {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .hamburger-btn:hover { border-color: var(--accent); background: rgba(79,158,255,0.1); }
+  .hamburger-btn.open { border-color: var(--accent); }
+  .hamburger-btn span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    transform-origin: center;
+  }
+  .hamburger-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger-btn.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Menu nav buttons inside drawer */
+  .menu-nav-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .menu-nav-btn:hover { background: var(--surface2); border-color: var(--border); }
+  .menu-nav-btn.active { background: rgba(79,158,255,0.1); border-color: var(--accent); color: var(--accent); }
+  [data-theme="light"] .menu-nav-btn.active { background: rgba(26,95,189,0.08); }
+  /* ===== END HAMBURGER ===== */
+</style>
+</head>
+<body>
+<script>
+  // Apply saved theme immediately to avoid flash
+  try {
+    if (localStorage.getItem('evaluacion_theme') === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  } catch(e) {}
+</script>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="header-left">
+      <h1>Evaluación <span>Comparativa</span><br>de Proveedores</h1>
+      <p>// SISTEMA DE PUNTUACIÓN MAZ · MÁX 12 PTS</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.75rem;">
+      <div class="badge">🛒 Analista de Compras</div>
+      <button class="hamburger-btn" onclick="toggleMenu()" id="hamburgerBtn" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Form Panel -->
+  <div class="layout">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="icon icon-blue">📋</div>
+        <div>
+          <h2>Cargar Cotización</h2>
+          <p>Ingresá los datos del proveedor y asigná puntajes</p>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="form-grid" id="formGrid">
+
+          <div class="field">
+            <label>Fecha</label>
+            <input type="date" id="fFecha">
+          </div>
+
+          <div class="field" style="position:relative;">
+            <label>Código Interno <span style="color:var(--accent);font-size:0.65rem;font-weight:600;">⚡ AUTO</span></label>
+            <input type="text" id="fCodigo" placeholder="Escribí el código..." style="font-family:'DM Mono',monospace;" autocomplete="off" oninput="onCodigoInput(this.value)" onblur="setTimeout(closeSuggestions,160)">
+            <div id="sugerencias" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:200;background:var(--surface2);border:1px solid var(--accent);border-radius:0 0 10px 10px;max-height:220px;overflow-y:auto;margin-top:2px;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
+          </div>
+
+          <div class="field" style="grid-column: span 2;">
+            <label>Producto / Insumo <span style="color:var(--green);font-size:0.65rem;font-weight:600;">AUTO ✓</span></label>
+            <input type="text" id="fInsumo" placeholder="Se completa automático al elegir el código ↑" style="color:var(--text);" autocomplete="off">
+          </div>
+
+          <div class="field" style="grid-column:span 2; position:relative;">
+            <label>Proveedor <span style="color:var(--accent);font-size:0.65rem;font-weight:600;">⚡ CUENTA · CUIT · NOMBRE</span></label>
+            <input type="text" id="fProveedor" placeholder="Buscá por cuenta, CUIT o nombre..." autocomplete="off" oninput="onProveedorInput(this.value)" onblur="setTimeout(closeProvSugerencias,160)">
+            <div id="provSugerencias" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:200;background:var(--surface2);border:1px solid var(--accent);border-radius:0 0 10px 10px;max-height:240px;overflow-y:auto;margin-top:2px;box-shadow:0 8px 24px rgba(0,0,0,0.4);"></div>
+          </div>
+          <div class="field">
+            <label>Nro. Cuenta</label>
+            <input type="text" id="fCuenta" placeholder="—" style="font-family:'DM Mono',monospace;background:var(--surface2);" readonly>
+          </div>
+          <div class="field">
+            <label>CUIT</label>
+            <input type="text" id="fCuit" placeholder="—" style="font-family:'DM Mono',monospace;background:var(--surface2);" readonly>
+          </div>
+
+          <div class="field">
+            <label>Cotización (precio)</label>
+            <input type="number" id="fPrecio" placeholder="Ej: 2.51" step="0.01" min="0">
+          </div>
+
+          <div class="field">
+            <label>Moneda</label>
+            <select id="fMoneda">
+              <option value="$">$ Pesos</option>
+              <option value="U$S">U$S Dólar</option>
+              <option value="€">€ Euro</option>
+            </select>
+          </div>
+
+          <!-- Entregas -->
+          <div class="field">
+            <label>Entregas</label>
+            <select id="fEntregas" onchange="updatePreview()">
+              <option value="">— Seleccioná —</option>
+              <option value="1">No cumple</option>
+              <option value="2">Cumple a veces</option>
+              <option value="3">Cumple siempre</option>
+            </select>
+            <div class="score-hint" id="hintEntregas">—</div>
+          </div>
+
+          <!-- Precio: auto -->
+          <div class="field">
+            <label>Precio <span style="color:var(--accent);font-size:0.65rem;font-weight:600;">AUTO ⚡</span></label>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.6rem 0.85rem;font-size:0.8rem;color:var(--muted);display:flex;align-items:center;gap:0.5rem;">
+              <span style="font-size:1rem;">🤖</span> Se calcula al guardar
+            </div>
+            <div class="score-hint" id="hintPrecio">Comparado vs. otros del mismo insumo</div>
+          </div>
+
+          <!-- Disponibilidad -->
+          <div class="field">
+            <label>Disponibilidad</label>
+            <select id="fDisponibilidad" onchange="updatePreview()">
+              <option value="">— Seleccioná —</option>
+              <option value="1">Más de 15 días</option>
+              <option value="2">Entre 7 a 10 días</option>
+              <option value="3">Inmediata</option>
+            </select>
+            <div class="score-hint" id="hintDisponibilidad">—</div>
+          </div>
+
+          <!-- Plazo -->
+          <div class="field">
+            <label>Plazo de Pago</label>
+            <select id="fPlazo" onchange="updatePreview()">
+              <option value="">— Seleccioná —</option>
+              <option value="1">Adelantado</option>
+              <option value="2">Corto</option>
+              <option value="3">+30 / 60 días</option>
+            </select>
+            <div class="score-hint" id="hintPlazo">—</div>
+          </div>
+
+        </div>
+
+        <div style="margin-top:1.25rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+          <button class="btn-add" onclick="agregarCotizacion()">
+            ＋ Agregar Cotización
+          </button>
+          <div style="font-size:0.78rem; color:var(--muted);">
+            Puntaje total: <strong id="previewScore" style="color:var(--accent); font-family:'DM Mono',monospace;">—</strong> / 12
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div class="panel" id="resultsPanel">
+      <div class="panel-header">
+        <div class="icon icon-green">📊</div>
+        <div>
+          <h2>Comparativa por Insumo</h2>
+          <p>Mín. 3 opciones · Valida Gte. Gral y/o Resp. Supply Chain</p>
+        </div>
+      </div>
+
+      <div class="stats-bar" id="statsBar" style="display:none;">
+        <div class="stat">
+          <div class="stat-val" id="statInsumos">0</div>
+          <div class="stat-label">Insumos</div>
+        </div>
+        <div class="sep"></div>
+        <div class="stat">
+          <div class="stat-val" id="statProveedores">0</div>
+          <div class="stat-label">Cotizaciones</div>
+        </div>
+        <div class="sep"></div>
+        <div class="stat">
+          <div class="stat-val" id="statGanadores">0</div>
+          <div class="stat-label">Ganadores</div>
+        </div>
+      </div>
+
+      <div id="resultsContainer">
+        <div class="empty">
+          <div class="empty-icon">📦</div>
+          <p>Aún no hay cotizaciones cargadas.<br>Completá el formulario y comenzá.</p>
+        </div>
+      </div>
+
+      <div class="min-note" id="minNote" style="display:none;">
+        ⚠️ <span>Recordá:</span> Se requieren mínimo <span>3 proveedores</span> por insumo para validar la comparativa.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PROVEEDORES VIEW -->
+<div class="view-section" id="view-proveedores">
+  <div style="max-width:1400px;margin:0 auto;padding:0 2rem 2rem;">
+
+    <!-- Back button -->
+    <div style="margin-bottom:1rem;">
+      <button onclick="showView('cotizaciones')" style="display:flex;align-items:center;gap:0.5rem;background:none;border:1px solid var(--border);color:var(--muted);padding:0.45rem 1rem;border-radius:8px;font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        ← Volver
+      </button>
+    </div>
+
+    <!-- Search bar -->
+    <div style="margin-bottom:1rem;">
+      <div style="position:relative;">
+        <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.85rem;">🔍</span>
+        <input type="text" id="searchProveedores" placeholder="Buscar por nombre o nro. de cuenta..." oninput="renderProveedores()" style="width:100%;padding:0.6rem 0.75rem 0.6rem 2.2rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Outfit',sans-serif;font-size:0.85rem;">
+      </div>
+    </div>
+
+    <!-- Add proveedor form -->
+    <div class="prov-form">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+        <div class="icon icon-blue">🏢</div>
+        <div>
+          <div style="font-size:0.9rem;font-weight:700;color:var(--text);">Agregar Proveedor</div>
+          <div style="font-size:0.75rem;color:var(--muted);">Sumá un proveedor al listado maestro</div>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-bottom:1rem;">
+        <div class="field">
+          <label>Nro. Cuenta</label>
+          <input type="text" id="npCuenta" placeholder="Ej: 145" style="font-family:'DM Mono',monospace;">
+        </div>
+        <div class="field">
+          <label>CUIT</label>
+          <input type="text" id="npCuit" placeholder="Ej: 30-12345678-9" style="font-family:'DM Mono',monospace;">
+        </div>
+        <div class="field" style="grid-column:span 2;">
+          <label>Denominación / Nombre</label>
+          <input type="text" id="npNombre" placeholder="Ej: INSUMOS Y MASIVOS S.R.L.">
+        </div>
+        <div class="field">
+          <label>Teléfono</label>
+          <input type="text" id="npTel" placeholder="Ej: 11 4567-8901">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="npEmail" placeholder="Ej: ventas@proveedor.com">
+        </div>
+      </div>
+      <button class="btn-add" onclick="agregarProveedor()">＋ Agregar Proveedor</button>
+    </div>
+
+    <!-- Lista proveedores -->
+    <div id="proveedoresList"></div>
+  </div>
+</div>
+
+<!-- INSUMOS VIEW -->
+<div class="view-section" id="view-insumos">
+  <div style="max-width:1400px;margin:0 auto;padding:0 2rem 2rem;">
+    <div class="panel">
+      <div style="padding:0.85rem 1rem 0;">
+        <button onclick="showView('cotizaciones')" style="display:flex;align-items:center;gap:0.5rem;background:none;border:1px solid var(--border);color:var(--muted);padding:0.45rem 1rem;border-radius:8px;font-family:'Outfit',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+          ← Volver
+        </button>
+      </div>
+      <div class="panel-header" style="margin-top:0.5rem;">
+        <div class="icon icon-blue">📦</div>
+        <div style="flex:1;">
+          <h2>Insumos cotizados</h2>
+          <p>Solo los insumos con al menos una cotización cargada</p>
+        </div>
+      </div>
+      <div style="padding:0.85rem 1rem;border-bottom:1px solid var(--border);">
+        <div style="position:relative;">
+          <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.85rem;">🔍</span>
+          <input type="text" id="searchInsumos" placeholder="Buscar por código o descripción..." oninput="renderInsumos()" style="width:100%;padding:0.55rem 0.75rem 0.55rem 2.2rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Outfit',sans-serif;font-size:0.85rem;">
+        </div>
+      </div>
+      <div id="insumosList" style="padding:1rem;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMPARATIVA INSUMO -->
+<div id="modalInsumoComp" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;max-width:760px;width:95%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <div>
+        <h3 id="modalInsumoTitle" style="font-size:1rem;font-weight:700;color:var(--text);margin:0;"></h3>
+        <p id="modalInsumoSub" style="font-size:0.78rem;color:var(--muted);margin:0.2rem 0 0;"></p>
+      </div>
+      <button onclick="cerrarModalInsumo()" style="background:none;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:1rem;">✕</button>
+    </div>
+    <div id="modalInsumoBody"></div>
+  </div>
+</div>
+
+<!-- MODAL HISTORIAL PROVEEDOR -->
+<div id="modalProvHist" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;max-width:700px;width:95%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <div>
+        <h3 id="modalProvHistTitle" style="font-size:1rem;font-weight:700;color:var(--text);margin:0;"></h3>
+        <p id="modalProvHistSub" style="font-size:0.78rem;color:var(--muted);margin:0.2rem 0 0;"></p>
+      </div>
+      <button onclick="document.getElementById('modalProvHist').classList.remove('open');document.getElementById('modalProvHist').style.display='none';" style="background:none;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:1rem;">✕</button>
+    </div>
+    <div id="modalProvHistBody"></div>
+  </div>
+</div>
+
+<!-- MODAL DUPLICADO -->
+<div id="modalDup" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+    <div style="font-size:1.5rem;margin-bottom:0.5rem;">⚠️</div>
+    <h3 style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:0.5rem;">Cotización duplicada</h3>
+    <p id="modalDupMsg" style="font-size:0.85rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.5;"></p>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <button onclick="confirmarActualizar()" style="flex:1;padding:0.6rem 1rem;border-radius:8px;border:none;background:var(--accent);color:#fff;font-weight:600;font-size:0.85rem;cursor:pointer;">Actualizar precio</button>
+      <button onclick="cerrarModal()" style="flex:1;padding:0.6rem 1rem;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);font-weight:600;font-size:0.85rem;cursor:pointer;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HISTÓRICO -->
+<div id="modalHist" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.5rem;max-width:640px;width:95%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+      <div>
+        <h3 id="modalHistTitle" style="font-size:1rem;font-weight:700;color:var(--text);margin:0;"></h3>
+        <p id="modalHistSub" style="font-size:0.78rem;color:var(--muted);margin:0.2rem 0 0;"></p>
+      </div>
+      <button onclick="cerrarModalHist()" style="background:none;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:7px;cursor:pointer;font-size:1rem;">✕</button>
+    </div>
+    <div id="modalHistBody"></div>
+  </div>
+</div>
+
+<!-- HAMBURGER DRAWER MENU -->
+<div class="side-overlay" id="sideOverlay" onclick="cerrarSidePanel()"></div>
+<div class="side-panel" id="sidePanel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);">
+    <div style="font-size:1rem;font-weight:700;color:var(--text);">Menú</div>
+    <button onclick="cerrarSidePanel()" style="background:none;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:7px;cursor:pointer;">✕</button>
+  </div>
+
+  <!-- Nav links -->
+  <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1.5rem;">
+    <button class="menu-nav-btn" id="mnav-cotizaciones" onclick="showView('cotizaciones');cerrarSidePanel()">
+      <span>📋</span> Cotizaciones
+    </button>
+    <button class="menu-nav-btn" id="mnav-insumos" onclick="showView('insumos');cerrarSidePanel()">
+      <span>📦</span> Insumos <span id="mnav-insumos-count" style="margin-left:auto;font-size:0.7rem;background:rgba(79,158,255,0.15);color:var(--accent);padding:1px 6px;border-radius:4px;display:none;"></span>
+    </button>
+    <button class="menu-nav-btn" id="mnav-proveedores" onclick="showView('proveedores');cerrarSidePanel()">
+      <span>🏢</span> Proveedores <span id="mnav-proveedores-count" style="margin-left:auto;font-size:0.7rem;background:rgba(79,158,255,0.15);color:var(--accent);padding:1px 6px;border-radius:4px;display:none;"></span>
+    </button>
+  </div>
+
+  <div style="height:1px;background:var(--border);margin-bottom:1.5rem;"></div>
+
+  <!-- Theme toggle inline -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+    <span style="font-size:0.85rem;font-weight:600;color:var(--text);">Tema</span>
+    <div class="theme-toggle" id="themeToggle2" onclick="toggleTheme()">
+      <div class="toggle-track">
+        <span class="toggle-icon dark-icon">🌙</span>
+        <span class="toggle-icon light-icon">☀️</span>
+        <div class="toggle-thumb"></div>
+      </div>
+      <span class="toggle-label" id="themeLabel2">Oscuro</span>
+    </div>
+  </div>
+
+  <div style="height:1px;background:var(--border);margin-bottom:1.5rem;"></div>
+
+  <!-- Parámetros colapsables -->
+  <button onclick="toggleParams()" style="width:100%;display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:0.75rem 1rem;cursor:pointer;font-family:'Outfit',sans-serif;margin-bottom:0.5rem;">
+    <span style="font-size:0.85rem;font-weight:700;color:var(--text);">📌 Parámetros MAZ</span>
+    <span id="paramsChevron" style="color:var(--muted);font-size:0.75rem;transition:transform 0.25s;">▼</span>
+  </button>
+  <div id="paramsBody" style="display:none;overflow:hidden;">
+  <div style="font-size:0.72rem;color:var(--muted);margin-bottom:1rem;padding:0 0.25rem;">Sistema de evaluación · Máx. 12 pts</div>
+
+  <div style="display:flex;flex-direction:column;gap:1.25rem;">
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.6rem;">🚚 Entregas</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;">
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--red-bg);border:1px solid var(--red);color:var(--red);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">1</span>No cumple</div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--yellow-bg);border:1px solid var(--yellow);color:var(--yellow);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">2</span>Cumple a veces</div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--green-bg);border:1px solid var(--green);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">3</span>Cumple siempre</div>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--border);"></div>
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.6rem;">💰 Precio</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;">
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--red-bg);border:1px solid var(--red);color:var(--red);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">1</span>Más alto</div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--yellow-bg);border:1px solid var(--yellow);color:var(--yellow);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">2</span>Medio</div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--green-bg);border:1px solid var(--green);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">3</span>Más bajo <span style="font-size:0.7rem;color:var(--muted);margin-left:4px;">(auto ⚡)</span></div>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--border);"></div>
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.6rem;">📦 Disponibilidad</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;">
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--red-bg);border:1px solid var(--red);color:var(--red);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">1</span>&gt;15 días</div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--yellow-bg);border:1px solid var(--yellow);color:var(--yellow);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">2</span>7 a 10 días</div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--green-bg);border:1px solid var(--green);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">3</span>Inmediata</div>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--border);"></div>
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.6rem;">🗓️ Plazo de Pago</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;">
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--red-bg);border:1px solid var(--red);color:var(--red);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">1</span>Adelantado</div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--yellow-bg);border:1px solid var(--yellow);color:var(--yellow);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">2</span>Corto</div>
+        <div style="display:flex;align-items:center;gap:0.6rem;font-size:0.82rem;"><span style="width:20px;height:20px;border-radius:4px;background:var(--green-bg);border:1px solid var(--green);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75rem;flex-shrink:0;">3</span>&gt;30/60 días</div>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--border);"></div>
+    <div style="background:var(--surface2);border-radius:10px;padding:0.85rem;font-size:0.78rem;color:var(--muted);line-height:1.6;">
+      💡 El precio se calcula <strong style="color:var(--text);">automáticamente</strong> comparando con los demás proveedores del mismo insumo.<br><br>
+      Puntaje máximo: <strong style="color:var(--accent);">12 puntos</strong> (3 por parámetro).
+    </div>
+  </div>
+  </div><!-- end paramsBody -->
+</div>
+
+<div id="loadingBar" style="display:none;position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:9999;animation:loadPulse 1.2s ease-in-out infinite;"></div>
+
+<div id="setupBanner" style="display:none !important;position:fixed;bottom:0;left:0;right:0;z-index:500;background:#1a1000;border-top:1px solid var(--yellow);padding:1rem 1.5rem;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+  <div style="flex:1;min-width:260px;">
+    <p style="color:var(--yellow);font-weight:700;font-size:0.85rem;margin:0 0 0.4rem;">⚠️ Tablas no encontradas en Supabase</p>
+    <p style="color:var(--muted);font-size:0.78rem;margin:0;line-height:1.5;">Necesitás crear las tablas primero. Copiá el SQL y ejecutalo en <strong style="color:var(--text);">Supabase → SQL Editor → New query</strong>.</p>
+  </div>
+  <button onclick="document.getElementById('sqlModal').style.display='flex'" style="background:var(--yellow);color:#000;border:none;padding:0.5rem 1rem;border-radius:8px;font-weight:700;font-size:0.8rem;cursor:pointer;white-space:nowrap;">Ver SQL →</button>
+  <button onclick="document.getElementById('setupBanner').style.display='none'" style="background:none;border:1px solid var(--border);color:var(--muted);padding:0.5rem 0.75rem;border-radius:8px;font-size:0.8rem;cursor:pointer;">✕</button>
+</div>
+
+<div id="sqlModal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem;max-width:680px;width:95%;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <h3 style="font-size:1rem;font-weight:700;color:var(--text);margin:0;">SQL para crear las tablas</h3>
+      <button onclick="document.getElementById('sqlModal').style.display='none'" style="background:none;border:1px solid var(--border);color:var(--muted);width:30px;height:30px;border-radius:7px;cursor:pointer;">✕</button>
+    </div>
+    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:1rem;">Copiá todo esto y pegalo en <strong style="color:var(--text);">Supabase → SQL Editor → New query</strong>, luego ejecutalo.</p>
+    <pre id="sqlCode" style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;font-size:0.72rem;font-family:'DM Mono',monospace;color:var(--text);overflow-x:auto;line-height:1.6;white-space:pre-wrap;">create table if not exists cotizaciones (
+  id bigserial primary key,
+  sb_id bigint unique not null,
+  fecha date not null,
+  insumo text not null,
+  codigo text not null,
+  proveedor text not null,
+  cuenta text default '',
+  cuit text default '',
+  precio numeric(12,4) not null,
+  moneda text default '$',
+  score_entregas int default 0,
+  score_precio int default 0,
+  score_disponibilidad int default 0,
+  score_plazo int default 0,
+  total int default 0,
+  created_at timestamptz default now()
+);
+
+create table if not exists historico_precios (
+  id bigserial primary key,
+  codigo text not null,
+  insumo text not null,
+  proveedor text not null,
+  fecha date not null,
+  precio numeric(12,4) not null,
+  moneda text default '$',
+  created_at timestamptz default now()
+);
+
+alter table cotizaciones enable row level security;
+alter table historico_precios enable row level security;
+
+create policy "allow all" on cotizaciones for all using (true) with check (true);
+create policy "allow all" on historico_precios for all using (true) with check (true);</pre>
+    <button onclick="navigator.clipboard.writeText(document.getElementById('sqlCode').textContent).then(()=>showToast('✓ SQL copiado al portapapeles','var(--green)'))" style="margin-top:1rem;background:var(--accent);color:#fff;border:none;padding:0.6rem 1.25rem;border-radius:8px;font-weight:600;font-size:0.85rem;cursor:pointer;width:100%;">Copiar SQL</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Cotización agregada</div>
+
+<script>
+
+
+// ===== PROVEEDORES LOOKUP =====
+const PROVEEDORES = [{"cuenta": "1", "cuit": "30547596133", "denominacion": "DISTRIBUIDORA BAUDRACCO"}, {"cuenta": "6", "cuit": "20202418245", "denominacion": "REICHERT  ADOLFO ARTURO"}, {"cuenta": "21", "cuit": "30596598575", "denominacion": "FALDANI NEUMATICOS S.A."}, {"cuenta": "30", "cuit": "30708581786", "denominacion": "MACROSISTEMAS  S.A."}, {"cuenta": "31", "cuit": "30674453503", "denominacion": "CASERMEIRO S.R.L"}, {"cuenta": "33", "cuit": "30515585415", "denominacion": "ACEROS  ALFA S.A"}, {"cuenta": "34", "cuit": "23121903679", "denominacion": "LASALA, DANIEL"}, {"cuenta": "40", "cuit": "30700337754", "denominacion": "FRUND   STARK S.A."}, {"cuenta": "45", "cuit": "20119497508", "denominacion": "CACCHIARELLI, OMAR"}, {"cuenta": "59", "cuit": "33539819149", "denominacion": "CONTE HNOS Y CIA S.A."}, {"cuenta": "62", "cuit": "30545701576", "denominacion": "COOPERATIVA de Provision DE ENERGIA"}, {"cuenta": "64", "cuit": "30582215703", "denominacion": "C.V.C S.A."}, {"cuenta": "68", "cuit": "30695396151", "denominacion": "AUTOELEVADORES SILCAR S.R.L"}, {"cuenta": "71", "cuit": "30689518105", "denominacion": "LA CASA DEL ACOPLADO S.A"}, {"cuenta": "77", "cuit": "20241051111", "denominacion": "MANASSERO GUILLERMO RAUL"}, {"cuenta": "80", "cuit": "30646347978", "denominacion": "CRISTALES MONETTI  SRL"}, {"cuenta": "91", "cuit": "30708639830", "denominacion": "ROSARIO PACK S.R.L"}, {"cuenta": "94", "cuit": "30708434627", "denominacion": "CORRUCOR S.R.L"}, {"cuenta": "96", "cuit": "30709782246", "denominacion": "ADHYSER SRL"}, {"cuenta": "102", "cuit": "30599213631", "denominacion": "WARBEL  S.A."}, {"cuenta": "111", "cuit": "30708138971", "denominacion": "COMERCIAL RODAVEN S.R.L"}, {"cuenta": "115", "cuit": "30707652477", "denominacion": "ESTAC. SERVICIO INTEGRAL S.A."}, {"cuenta": "133", "cuit": "30531205991", "denominacion": "COOP.AGROP. UNIFICADA ELORTONDO"}, {"cuenta": "136", "cuit": "33689453789", "denominacion": "DVL Satelital de T.C.S.A.."}, {"cuenta": "141", "cuit": "30709084131", "denominacion": "EUROMEL S.A."}, {"cuenta": "142", "cuit": "30653342388", "denominacion": "ALVAREZ, LUIS Y JORGE S.R.L"}, {"cuenta": "145", "cuit": "33563240119", "denominacion": "ARAUCO ARGENTINA S.A."}, {"cuenta": "147", "cuit": "30656553711", "denominacion": "EGGER ARGENTINA S.A Unipersonal"}, {"cuenta": "166", "cuit": "30716115468", "denominacion": "HERNANDEZ Y BAGNERES S.R.L."}, {"cuenta": "168", "cuit": "30676575665", "denominacion": "REHAU S..A."}, {"cuenta": "177", "cuit": "33689472759", "denominacion": "FLEXIMAX S.R.L"}, {"cuenta": "182", "cuit": "30707574379", "denominacion": "INSUMOS Y MASIVOS S.R.L."}, {"cuenta": "183", "cuit": "30683009195", "denominacion": "DISTRIBUIDORA  PLACASUR S.A."}, {"cuenta": "189", "cuit": "20182926508", "denominacion": "CARIGNANO  ALBERTO JOSE"}, {"cuenta": "190", "cuit": "33578487439", "denominacion": "OBERTI HNOS. S.R.L."}, {"cuenta": "191", "cuit": "30709730815", "denominacion": "Coop. de Trabajo Aguas Mediterraneas Ltda."}, {"cuenta": "197", "cuit": "20233464199", "denominacion": "FRANGOLINI CRISTIAN ANDRES"}, {"cuenta": "201", "cuit": "30710805365", "denominacion": "FORLIN NEUMATICOS S.R.L."}, {"cuenta": "212", "cuit": "30710790775", "denominacion": "CONFORMADOS METALICOS SRL"}, {"cuenta": "218", "cuit": "20266869348", "denominacion": "ROSSI LEANDRO ALBERTO"}, {"cuenta": "220", "cuit": "20118417977", "denominacion": "BERENGUER HECTOR H."}, {"cuenta": "231", "cuit": "30573140644", "denominacion": "Ingenieria Electrónica Argentina S.R.L."}, {"cuenta": "233", "cuit": "30631810582", "denominacion": "WURTH ARGENTINA S.A"}, {"cuenta": "238", "cuit": "30628455518", "denominacion": "NOSIS Laborat.de Invest. y Desarrollo"}, {"cuenta": "240", "cuit": "30517518103", "denominacion": "BETA S.A."}, {"cuenta": "242", "cuit": "30630587219", "denominacion": "SUPER TOOLS  S.A."}, {"cuenta": "243", "cuit": "30653133878", "denominacion": "BERTEC S.A."}, {"cuenta": "244", "cuit": "33624271829", "denominacion": "TRANSELEC  S.R.L."}, {"cuenta": "250", "cuit": "20200546688", "denominacion": "BONZINI  HERNAN JAVIER"}, {"cuenta": "253", "cuit": "30707431411", "denominacion": "MECAN S.A."}, {"cuenta": "259", "cuit": "30716372657", "denominacion": "MECANIZACIONES KOBER -MAQ SAS"}, {"cuenta": "260", "cuit": "30707639896", "denominacion": "PETENATI HOGAR  S.A."}, {"cuenta": "265", "cuit": "30710323514", "denominacion": "CANTOCHAP S.A."}, {"cuenta": "274", "cuit": "30695414141", "denominacion": "DEVOL S.A."}, {"cuenta": "286", "cuit": "33622134379", "denominacion": "PINCEN S.A."}, {"cuenta": "288", "cuit": "34579842611", "denominacion": "ARROYITO MAQUINARIAS S.R.L."}, {"cuenta": "315", "cuit": "30703560128", "denominacion": "FULL PACK SA"}, {"cuenta": "323", "cuit": "20148012203", "denominacion": "MARTIN GABRIEL ADALBERTO"}, {"cuenta": "330", "cuit": "20238378630", "denominacion": "MAS JORGE MAXIMILIANO"}, {"cuenta": "348", "cuit": "30709052701", "denominacion": "REA JET S.R.L."}, {"cuenta": "359", "cuit": "20279471580", "denominacion": "BRAGA MARTIN E."}, {"cuenta": "369", "cuit": "20130531483", "denominacion": "BALBI HECTOR OSCAR"}, {"cuenta": "371", "cuit": "30705345135", "denominacion": "RED DEL HOGAR  S.A."}, {"cuenta": "376", "cuit": "30567590867", "denominacion": "SOTIC S.A."}, {"cuenta": "377", "cuit": "30710378327", "denominacion": "ARAN S.A."}, {"cuenta": "412", "cuit": "30690844741", "denominacion": "GIOVAGNOLI  S.R.L."}, {"cuenta": "420", "cuit": "20224836202", "denominacion": "CLERICI GUSTAVO OMAR"}, {"cuenta": "448", "cuit": "20121138884", "denominacion": "KRENZ, ALBERTO"}, {"cuenta": "460", "cuit": "30500049460", "denominacion": "SANCOR Cooperativa de SEGUROS Ltda"}, {"cuenta": "471", "cuit": "20133534688", "denominacion": "RODRIGUEZ ,HECTOR  ALBERTO"}, {"cuenta": "482", "cuit": "30506445600", "denominacion": "PAPELTECNICA S.A.I.C"}, {"cuenta": "483", "cuit": "30717904938", "denominacion": "1973 MERCADO SRL"}, {"cuenta": "486", "cuit": "20269599252", "denominacion": "ROSSI PAOLO"}, {"cuenta": "491", "cuit": "30711258287", "denominacion": "Grupo Gaona Consorcio Coop.Emp.y Exportacion"}, {"cuenta": "492", "cuit": "20315018847", "denominacion": "SEMPRINI MAURO"}, {"cuenta": "495", "cuit": "33717238309", "denominacion": "HAEDO DISTRIBUCIONES S.R.L"}, {"cuenta": "501", "cuit": "30710562918", "denominacion": "RAIES MADERAS S.A"}, {"cuenta": "506", "cuit": "30709656542", "denominacion": "ROTAIR de Ferretti Marcela y Fernandez A"}, {"cuenta": "508", "cuit": "30616459852", "denominacion": "INGENIERÍA ELÉCTRICA S.A"}, {"cuenta": "511", "cuit": "20289531492", "denominacion": "GITIN, DIEGO HERNAN"}, {"cuenta": "518", "cuit": "23274219149", "denominacion": "SOLER  PABLO MARTIN"}, {"cuenta": "524", "cuit": "20303134809", "denominacion": "FRUTOS, DAVID ARTURO"}, {"cuenta": "546", "cuit": "20147102489", "denominacion": "LUCIANI, HORACIO   HECTOR"}, {"cuenta": "548", "cuit": "30697535450", "denominacion": "RED MARQUEZ S.A"}, {"cuenta": "578", "cuit": "30580111315", "denominacion": "DHL Express S.A"}, {"cuenta": "600", "cuit": "20100594758", "denominacion": "Cuenta Particular Osvaldo F.Orlandi"}, {"cuenta": "601", "cuit": "20251474231", "denominacion": "Cuenta Particular Javier A.Orlandi"}, {"cuenta": "602", "cuit": "27266869431", "denominacion": "Cuenta Particular Gisela Orlandi"}, {"cuenta": "605", "cuit": "30714161292", "denominacion": "MACCHI TEXTIL S.R.L."}, {"cuenta": "650", "cuit": "30685466259", "denominacion": "LOGIMET S.R.L."}, {"cuenta": "661", "cuit": "30546689979", "denominacion": "YPF S.A."}, {"cuenta": "671", "cuit": "30708081996", "denominacion": "INDUMAC S.R.L."}, {"cuenta": "677", "cuit": "20939804235", "denominacion": "GONZALEZ GARCIA, Francisco Jesus"}, {"cuenta": "693", "cuit": "20206743523", "denominacion": "GENTILE CARLOS ALBERTO"}, {"cuenta": "708", "cuit": "23175144129", "denominacion": "TORRES , PATRICIO"}, {"cuenta": "720", "cuit": "30586733334", "denominacion": "CARTOCOR S.A."}, {"cuenta": "736", "cuit": "30708053100", "denominacion": "ID GROUP S.A."}, {"cuenta": "754", "cuit": "20293491837", "denominacion": "DI BENEDETTO JAVIER"}, {"cuenta": "766", "cuit": "30715671073", "denominacion": "CROMATICA V.T. S.R.L."}, {"cuenta": "795", "cuit": "30707943439", "denominacion": "GONZALO CALATAYUD S.R.L."}, {"cuenta": "827", "cuit": "20177290026", "denominacion": "GARDEÑES WALTER"}, {"cuenta": "830", "cuit": "30716662612", "denominacion": "TARDEN TRADE S.R.L."}, {"cuenta": "842", "cuit": "20117107214", "denominacion": "FRIGOFE de Trobbiani Daniel Ramon"}, {"cuenta": "848", "cuit": "20378143897", "denominacion": "CLERICI LUCAS GUSTAVO"}, {"cuenta": "1045", "cuit": "3727810248", "denominacion": "Nardello Sistemi S.R.L. Societi Uniper"}, {"cuenta": "1080", "cuit": "9,30928E+13", "denominacion": "PLASTIBORDO Componentes LDTA."}, {"cuenta": "1090", "cuit": "92534593/000194", "denominacion": "Bigfer Ind. E. Comercio de Ferraguens  L"}, {"cuenta": "5001", "cuit": "20077093851", "denominacion": "AGUIRRE  RUBEN OMAR"}, {"cuenta": "5002", "cuit": "20201434301", "denominacion": "AVOLEDO ADOLFO JOSÉ"}, {"cuenta": "5003", "cuit": "20278898858", "denominacion": "CALCATERA FRANCO"}, {"cuenta": "5005", "cuit": "20079928845", "denominacion": "FERRARIS RICARDO ERNESTO"}, {"cuenta": "5007", "cuit": "20049916311", "denominacion": "EDELMAN, HECTOR  R."}, {"cuenta": "5008", "cuit": "20116551013", "denominacion": "RAMOS RICARDO HORACIO"}, {"cuenta": "5011", "cuit": "20076181684", "denominacion": "GITIN EDGARDO MARIO"}, {"cuenta": "5012", "cuit": "20317969997", "denominacion": "CARLUCCI  RAFAEL FRANCO"}, {"cuenta": "5013", "cuit": "20236281095", "denominacion": "MENDEZ FERNANDO GASTON"}, {"cuenta": "5016", "cuit": "20311082702", "denominacion": "VEGA DAVID SEBASTIAN"}, {"cuenta": "5017", "cuit": "20334772951", "denominacion": "RAMOS MAURO MARTIN"}, {"cuenta": "5018", "cuit": "20247932039", "denominacion": "ACUÑA, GASTON"}, {"cuenta": "5019", "cuit": "20227754657", "denominacion": "FERRARIS GUILLERMO Eduardo"}, {"cuenta": "5021", "cuit": "20210599674", "denominacion": "CARLUCCI, NICOLAS"}, {"cuenta": "5022", "cuit": "20266004312", "denominacion": "GITIN, GASTON MATIAS"}, {"cuenta": "5024", "cuit": "20293735523", "denominacion": "ECHANIZ, JUAN IGNACIO"}, {"cuenta": "5025", "cuit": "20213284917", "denominacion": "ALCORTA RAUL ESTEBAN"}, {"cuenta": "5026", "cuit": "20252472208", "denominacion": "VILLARRUEL,GERMAN"}, {"cuenta": "5028", "cuit": "20312501857", "denominacion": "AVENDAÑO, GABRIEL"}, {"cuenta": "5029", "cuit": "30716231301", "denominacion": "AGO.PAU SRL"}, {"cuenta": "5090", "cuit": "20354661145", "denominacion": "PEREZ KOHUT, JOSE NICOLAS"}, {"cuenta": "50002", "cuit": "27168300021", "denominacion": "AVOLEDO SILVIA MARIA"}, {"cuenta": "50007", "cuit": "24102653692", "denominacion": "GRILLO, ADRIANA SILVIA"}, {"cuenta": "50013", "cuit": "27244505231", "denominacion": "NAVALON ELIZABETH"}, {"cuenta": "50021", "cuit": "20457393823", "denominacion": "CARLUCCI, MATIAS AGUSTIN"}, {"cuenta": "50022", "cuit": "27298657088", "denominacion": "JAMUI, ROSA MARCELA"}, {"cuenta": "50025", "cuit": "20231162233", "denominacion": "ALCORTA, PABLO FERNANDO"}, {"cuenta": "50026", "cuit": "27120924066", "denominacion": "FIOL SUSANA MARIA"}, {"cuenta": "50110", "cuit": "27065118640", "denominacion": "GOLDENBERG GLADYS MIRTHA"}, {"cuenta": "50113", "cuit": "20370264024", "denominacion": "MENDEZ NAVALON NAHUEL FERNANDO"}, {"cuenta": "50120", "cuit": "27236423196", "denominacion": "CORREA  AMALIA VERONICA"}, {"cuenta": "50121", "cuit": "20237720130", "denominacion": "CARLUCCI, MARIO CESAR"}, {"cuenta": "50122", "cuit": "27342493063", "denominacion": "TINO CAMILA LUCIA"}, {"cuenta": "50126", "cuit": "27368585020", "denominacion": "MANSILLA MARIA EUGENIA"}];
+
+function onProveedorInput(val) {
+  val = val.trim().toLowerCase();
+  if (!val) { closeProvSugerencias(); return; }
+
+  const matches = PROVEEDORES.reduce((acc, p, i) => {
+    if (
+      p.cuenta.toLowerCase().startsWith(val) ||
+      p.cuit.replace(/[^0-9]/g,'').includes(val.replace(/[^0-9]/g,'')) ||
+      p.denominacion.toLowerCase().includes(val)
+    ) acc.push({...p, _idx: i});
+    return acc;
+  }, []).slice(0, 12);
+
+  if (!matches.length) { closeProvSugerencias(); return; }
+
+  const box = document.getElementById('provSugerencias');
+  box.innerHTML = matches.map(p =>
+    `<div class="sug-item prov-item" onmousedown="selectProveedorIdx(${p._idx})">
+      <span style="font-family:'DM Mono',monospace;color:var(--accent);font-size:0.75rem;min-width:52px;">${p.cuenta}</span>
+      <span style="color:var(--muted);font-size:0.72rem;min-width:110px;font-family:'DM Mono',monospace;">${p.cuit}</span>
+      <span style="color:var(--text);font-size:0.8rem;">${p.denominacion}</span>
+    </div>`
+  ).join('');
+  box.style.display = 'block';
+}
+
+function selectProveedorIdx(idx) {
+  const p = PROVEEDORES[idx];
+  if (!p) return;
+  document.getElementById('fProveedor').value = p.denominacion;
+  document.getElementById('fCuenta').value = p.cuenta;
+  document.getElementById('fCuit').value = p.cuit;
+  closeProvSugerencias();
+}
+
+function closeProvSugerencias() {
+  const box = document.getElementById('provSugerencias');
+  if (box) box.style.display = 'none';
+}
+// ===== END PROVEEDORES =====
+
+// ===== ARTÍCULOS LOOKUP =====
+const ARTICULOS = {"35": "Mesada |Inox. Der/Izqu.Sin Respaldo 1,60 A.", "36": "Bacha Acero Inoxidable 103 e", "37": "Mesada  Inox. Der/Izqu.Sin Respaldo 1,40 A.", "39": "Mesada Inox. Der/Izqu.Sin Respaldo 1,20 A.", "40": "Mesada Inox. B.Central C/Resp. 1,20 x 53 A.", "42": "Mesada Inox. B.Central C/Resp. 1,40 x 53 A.", "43": "Mesada Inox. B.Central C/Resp. 1,60 x 53 A.", "61": "Respaldo Sommier Premium Mogno", "64": "Respaldo Sommier Premium Wengue/Venecia", "72": "Cama 2 Plazas Repisa Jacaranda", "73": "Cama 1 Plaza Repisa Jacaranda", "76": "Cómoda 3 Cajones 1 Puerta Jacarandá", "77": "Cómoda 3 Cajones 1 Puerta Abedul", "83": "Cama 2 Plazas Repisa Wengue", "84": "Cama 1 Plaza Repisa Roble", "85": "Cama 1 Plaza Repisa Mogno", "86": "Cama 1 Plaza Repisa Blanca", "87": "Cama 1 Plaza Repisa Wengue", "91": "Cómoda 3 Cajones 1 Puerta Wengue", "97": "Mesa de Luz 1 Cajon 1 Puerta Mogno", "98": "Mesa de Luz 1 Cajon 1 Puerta Blanca", "99": "Mesa de Luz 1 Cajon 1 Puerta Wengue", "104": "Cama 2 Plazas Repisa Venecia", "105": "Cama 1 Plaza Repisa Venecia", "106": "Cómoda 3 Cajones 1 Puerta Venecia", "107": "Mesa de Luz 1 Cajon 1 Puerta Venecia", "108": "Mesa de Luz 1 Cajon 1 Puerta Jacarandá", "109": "Mesa de Luz 1 Cajon 1 Puerta Abedul", "110": "Mesa de Luz 1 Cajon 1 Puerta Linosa", "112": "Mesa de Luz Premium Venecia", "113": "Mesa de Luz Premium Wengue", "114": "Mesa de Luz Premium Wengue/Venecia", "115": "Mesa de Luz Premium Jacarandá", "116": "Mesa de Luz Premium Abedul", "130": "Plac.Linea Premium 2,05 Mogno 2 cpos.P/A", "131": "Plac. 2 Cpos. Puertas Batientes Wengue 2,00", "132": "Plac. 2 Cpos. Puertas Batientes Venecia 2,00", "133": "Plac. 2 Cpos.Puertas Batientes Jacarandá 2,00", "134": "Plac. 2 Cpos. Puertas Batientes Abedul 2,00", "135": "Plac.Linea Premium1,77 Mogno 2 cpos. P/A", "136": "Plac. 2 Cpos. Puertas Batientes Wengue 1,80", "137": "Plac. 2 Cpos. Puertas Batientes Venecia 1,80", "138": "Plac. 2 Cpos. Puertas Batientes Jacarandá 1,80", "139": "Plac. 2 Cpos. Puetas Batientes Abedul 1,80", "140": "Plac.Linea Premium 1,53 Mogno.2 cpos. P/A", "141": "Plac. 2 Cpos. Puertas Batientes Wengue 1,50", "142": "Plac. 2 Cpos. Puertas Batientes Venecia 1,50", "143": "Plac. 2 Cpos Puertas Batientes Jacarandá 1,50", "144": "Plac. 2 Cpos. Puertas Batientes Abedul 1,50", "150": "Placar Melamina 2,12 x 2,15 Roble - 2 cpos", "151": "Placar Melamina 2,12 x 2,15 Mogno (2 cpos)", "152": "Placar Melamina 1,75 x 2,15 Roble (2 cpos)", "153": "Placar Melamina 1,75 x 2,15 Mogno (2 cpos)", "154": "Placar Melamina 1,42 x 2,15 Roble (2 cpos)", "158": "Placar Melamina 2,12 x 2,15 Jacarandá (2 cpos)", "159": "Placar Melamina 1,75 x 2,15 Jacarandá (2 cpos)", "161": "Placar Melamina 1,75 x 2,15 Wengue (2 cpos)", "162": "Placar Melamina 1,06 x 2,15 Roble (2 cpos)", "163": "Placar Melamina 1,06 x 2,15 Mogno (2 cpos)", "164": "Placar Melamina 1,42 x 2,15 Wengue (2 cpos)", "165": "Placar Melamina 1,06 x 2,15 Jacarandá (2 cpos)", "166": "Placar Melamina 1,06 x 2,15 Wengue (2 cpos)", "167": "Chifonier 0,60 Jacaranda 6 cajones", "168": "Modular 1,85  Roble (8 puertas/ 4 cajones)", "169": "Modular 1,85 Mogno (8 puertas/4 cajones)", "171": "Modular 1,60 Mogno (6 puertas/2 cajones)", "175": "Modular 1,20 Mogno (4 puertas/2 cajones)", "176": "Chifonier 0,90 Roble 6caj/1pta", "177": "Chifonier 0,90 Mogno 6caj/1pta", "178": "Chifonier 0,60 Roble 6 cajones", "179": "Chifonier 0,60 Mogno 6 cajones", "181": "Modular 1,40 Mogno (6 puertas/2 cajones)", "182": "Chifonier 0,90 Blanco 6caj/1pta", "183": "Chifonier 0,90 Venecia 6caj/1pta", "185": "Chifonier 0,60 Venecia 6 cajones", "186": "Chifonier 1,20 Roble 6caj/2ptas", "187": "Chifonier 1,20 Mogno 6caj/2ptas", "188": "Chifonier 1,20 Blanco 6caj/2ptas", "189": "Chifonier 1,20 Venecia 6caj/2ptas", "198": "Modular Jacaranda 1,85", "201": "Modular Wengue 1,85", "203": "Modular Wengue 1,60", "204": "Modular Linosa 1,85", "205": "Modular Wengue 1,40", "207": "Modular Wengue 1,20", "208": "Chifonier 0,90 Wengue 6caj/1pta", "209": "Chifonier 0,60 Wengue 6 cajones", "217": "Plac. Lira1810x2000x540 Mogno", "224": "Modular Jacaranda 1,60", "225": "Modular Abedul 1,85", "226": "Modular Abedul 1,60", "227": "Modular Abedul 1,40", "228": "Modular Abedul 1,20", "229": "Modular Linosa 1,60", "230": "Placar Melamina 2,12 x 2,15 Venecia (2 cpos)", "231": "Modular Jacaranda 1,40", "232": "Placar Melamina 1,75 x 2,15 Venecia (2 cpos)", "233": "Modular Linosa 1,40", "234": "Placar Melamina 1,42 x 2,15 Venecia (2 cpos)", "235": "Modular Jacaranda 1,20", "236": "Placar Melamina 1,06 x 2,15 Venecia (2 cpos)", "237": "Modular Linosa 1,20", "238": "Botinero 3 Ptas. 1 Cajon Mogno", "239": "Botinero 3 Ptas. Wengue", "240": "Botinero 3 Ptas. Venecia", "241": "Botinero 3 Ptas. Jacaranda", "242": "Botinero 3 Ptas. Abedul", "245": "Botinero 4 Ptas. Mogno", "246": "Botinero 4 Ptas. Wengue", "247": "Botinero 4 Ptas. Venecia", "248": "Botinero 4 Ptas. Jacaranda", "249": "Botinero 4 Ptas. Abedul", "250": "Plac. Corred. Premium 1,38 Jacarandá (2 ptas/2 caj)", "251": "Plac.Corred.Premium 1,38 Mogno (2 ptas/2 cajones)", "252": "Plac. Corred. Premiun 1,38 Blanco (2 ptas/2 caj)", "253": "Plac. Corred. Premium 1,38 Wengue (2 ptas/2 caj)", "254": "Plac. Corred. Premium 1,38 Abedul (2 ptas/2 caj)", "255": "Plac.Corred.Premium 1,82 Mogno.(2 ptas /3 cajones )", "256": "Plac. Corred. Premium 1,82 Blanco (2 ptas/3 caj)", "257": "Plac. Corred. Premium 1,82 Wengue (2 ptas/3 caj)", "258": "Plac. Corred. Premium 1,82 Jacarandá (2 ptas/3 caj)", "259": "Plac. Corred. Premium 1,82 Abedul (2 ptas/3 caj)", "263": "Plac.Nilo 2030x2230x500 Mogno", "265": "Plac.NIilo 2030x2230x500 Wengue", "268": "Plac. Corred. Suave 1,24 Abedul (1 cpo)", "269": "Plac.NILO 1810x2230x500 Wengue", "271": "Plac. Corred. Premium 1,80 Wengue (2 cpos)", "272": "Plac. Corred. Premium 1,80 Venecia (2 cpos)", "273": "Plac. Corred. Premium 1,80 Wengue/Venecia (2 cpos)", "274": "Plac. Corred. Premium 1,80 Jacarandá (2 cpos)", "275": "Plac.Corred. Suave 1,82 Mongo 1 Cuerpo", "276": "Plac. Corred. Suave 1,82 Wengue (1 cpo)", "279": "Plac. Corred. Suave 1,82 Abedul (1 cpo)", "281": "Plac. Corred. Suave 1,38 Wengue (1 cpo)", "285": "Plac.Corred. Suave 1,24 Mongo 1 Cuerpo", "286": "Plac. Corred. Suave 1,24 Wengue (1 cpo)", "289": "Comoda Premium Jacarandá", "291": "Comoda Premium Wengue", "292": "Comoda Premium Venecia", "294": "Comoda Premium Abedul", "296": "Mini Placard Estudiantil Wengue 1,60 m.", "297": "Mini Placard Estudiantil Venecia 1,60 m.", "298": "Mini Placard Estudiantil Jacarandá 1,60 m.", "299": "Mini Placard Estudiantil Abedul 1,60 m.", "302": "Mini Placard Estudiantil Wengue 1,80 m.", "303": "Mini Placard Estudiantil Venecia 1,80 m.", "304": "Mini Placard Estudiantil Jacarandá 1,80 m.", "308": "Mini Placard Estudiantil Wengue 1,40 m.", "309": "Mini Placard Estudiantil Venecia 1,40 m.", "310": "Mini Placard Estudiantil Jacarandá 1,40 m.", "311": "Mini Placard Estudiantil Abedul 1,40 m.", "321": "Cocina Compacta Jacarandá 1,80", "322": "Cocina Compacta 1,80 Abedul", "325": "Cocina Compacta Blanco/Wengue 1,80", "326": "Cocina Compacta Calida Jacarandá 2,15", "327": "Cocina Compacta Calida Abedul 2,15", "329": "Cocina Compacta Calida 2,15 Abedul/Jacarandá", "331": "Placar Bahia 1,81 x 1,84 Mogno (1 cpo)", "333": "Placar Bahi1,81 x 1,84 Wengue (1 cpo)", "334": "Placar Bahia 1,51 x 1,84 Roble (1 cpo)", "338": "Placar Bahia 1,21 x 1,84 Roble (1 cpo)", "339": "Placar Bahia 1,21 x 1,84 Mogno (1 cpo)", "343": "Placar Bahia 0,91 x 1,84 Mogno (1 cpo)", "344": "Placar Bahia 0,91 x 1,84 Blanco (1 cpo)", "352": "Plac. Juvenil 1400 x 1820 Blanco/Azul", "361": "Plac. Bahia Peral 1,20", "362": "Plac. Bahia Peral 0,90", "383": "Chifonier Juvenil Blanco/Verde 5 caj/1 pta", "394": "Plac. 0,91 Verde 2 Ptas. 2 Cj.", "395": "Cama 1 Pla Verde C/Rep y Porta Juguete", "396": "Mesa de Luz 1 Cajon Verde", "400": "Multifunción (400) 1,80 x 0,70", "401": "Multifunción (401) 1,81 x 0,45", "402": "Multifunción (402) 1,81 x 0,45", "403": "Multifunción (403) 1,81 x 0,45", "404": "Multifunción (404) 1,60 x 0,60", "405": "Multifunción (405) 1,60 x 0,60", "406": "Multifunción (406) 1,60 x 0,45", "407": "Multifunción (407) 1,60 x 0,45", "434": "Bajo Mesada 0,40 x 0,82 x 0,56", "459": "Alacena L. Murano Atakama 0,40 m.", "510": "Modular Recto Murano Atakama 1,80 m.", "511": "Modular Recto Murano Larice 1,80 m.", "515": "Modular Recto Murano Atakama 1,40 m.", "540": "Bahiut Wengue 2,25", "541": "Bahiut Venecia 2,25", "542": "Bahiut Jacaranda 2,25", "543": "Bahiut Abedul 2,25", "545": "Bahiut Wengue 1,80", "546": "Bahiut Venecia 1,80", "547": "Bahiut Jacaranda 1,80", "548": "Bahiut Abedul 1,80", "550": "Bahiut Wengue 1,35", "551": "Bahiut Venecia 1,35", "552": "Bahiut Jacaranda 1,35", "553": "Bahiut Abedul 1,35", "560": "Respaldo Premium Regulable Wengue/Venecia", "561": "Respaldo Premium Regulable Wengue", "562": "Respaldo Premium Regulable Venecia", "563": "Respaldo Premium Regulable Jacaranda", "564": "Respaldo Premium Regulable Abedul", "565": "Respaldo Premium Regulable Malta Almendra", "570": "Cama Box Regulable Wengue/Venecia", "571": "Cama Box Regulable Wengue", "572": "Cama Box Regulable Venecia", "573": "Cama Box Regulable Jacaranda", "574": "Cama Box Regulable Abedul", "575": "Cama Box Regulable Malta Almendra", "580": "Vestidor Premium Wengue", "581": "Vestidor Premium Venecia", "582": "Vestidor Premium Jacaranda", "583": "Vestidor Premium Abedul", "584": "Vestidor Premium Blanco", "590": "Cama 2 Plazas C/Repisa M24 Blanco", "591": "Cama 2 Plazas C/Repisa M24 Venecia", "592": "Cama 2 Plazas C/Repisa M24 Jacaranda", "593": "Cama 2 Plazas C/Repisa M24 Malta/Blanco", "595": "Cama 1 Plaza C/Repisa M24 Blanco", "596": "Cama 1 Plaza C/Repisa M24 Venecia", "597": "Cama 1 Plaza C/Repisa M24 Jacaranda", "598": "Cama 1 Plaza C/Repisa M24 Malta/Blanco", "600": "Cucheta Triple - Wengue", "601": "Cucheta Triple - Venecia", "602": "Cucheta Triple - Jacaranda", "603": "Cucheta Triple - Abedul", "610": "Bajo Mesada Premiun Blanco 1,60m", "611": "Bajo Mesada Premiun Blanco 1,40 m.", "612": "Bajo Mesada Premiun Blanco 1,20 m.", "613": "Bajo Mesada Premiun Blanco 0,80 m.", "614": "Bajo Mesada Premiun Blanco 0,40 m.", "615": "Alacena Premium Blanco 1,60m", "616": "Alacena Premium Blanca 1,40m", "617": "Alacena Premium Blanca 1,20m", "618": "Alacena Premium Blanca 0,80m", "619": "Alacena Premium Blanca 0,40m", "620": "Bajo Mesada Premiun Jacaranda 1,60 m.", "621": "Bajo Mesada Premiun Jacaranda 1,40 m.", "622": "Bajo Mesada Premiun Jacaranda 1,20 m.", "623": "Bajo Mesada Premiun Jacaranda 0,80 m.", "624": "Bajo Mesada Premiun Jacaranda 0,40 m.", "625": "Alacena Premium Jacaranda 1,60m", "626": "Alacena Premium Jacaranda 1,40m", "627": "Alacena Premium Jacaranda 1,20m", "628": "Alacena Premium Jacaranda 0,80m", "629": "Alacena Premium Jacaranda 0,40m", "630": "Bajo Mesada Premiun Abedul 1,60m", "631": "Bajo Mesada Premiun Abedul 1,40 m.", "632": "Bajo Mesada Premiun Abedul 1,20 m.", "633": "Bajo Mesada Premiun Abedul 0,80 m.", "634": "Bajo Mesada Premiun Abedul 0,40 m.", "635": "Alacena Premium Abedul 1,60m", "636": "Alacena Premium Abedul 1,40m", "637": "Alacena Premium Abedul 1,20m", "638": "Alacena Premium Abedul 0,80m", "639": "Alacena Premium Abedul 0,40m", "640": "Bajo Mesada Premium Linosa 1,60m", "641": "Bajo Mesada Premiun Linosa 1,40 m.", "642": "Bajo Mesada Premiun Linosa 1,20 m.", "643": "Bajo Mesada Premiun Linosa 0,80 m.", "644": "Bajo Mesada Premiun Linosa 0,40 m.", "645": "Alacena Premium Linosa 1,60m", "646": "Alacena Premium Linosa 1,40m", "647": "Alacena Premium Linosa 1,20m", "649": "Alacena Premium Linosa 0,40m", "650": "Kit Cocina Premium Blanco 1,20m", "651": "Kit Cocina Premium Jacaranda 1,20m", "652": "Kit Cocina Premium Abedul 1,20m", "653": "Kit Cocina Premium Linosa 1,20m", "655": "Kit Cocina Premium Blanco 0,90m", "656": "Kit Cocina Premium Jacaranda 0,90m", "657": "Kit Cocina Premium Abedul 0,90m", "658": "Kit Cocina Premium Linosa 0,90m", "660": "Kit Cocina Premium Blanco 0,60m", "661": "Kit Cocina Premium Jacaranda 0,60m", "662": "Kit Cocina Premiunm Abedul 0,60m", "663": "Kit Cocina Premium Linosa 0,60m", "670": "Centro de Planchado Combinado Cajón y Perchero Blanco", "672": "Centro de Planchado Combinado Cajón y Perchero Jacaran.", "675": "Bajo Mesada Premium Malta / Almendra 1,60m", "680": "Centro de Planchado Combinado Cajón y Canasto Blanco", "681": "Centro de Planchado Combinado Cajón y Canasto Wengue", "683": "Centro de Planchado Combinado Cajón y Canasto Abedul", "685": "Alacena Premium Malta / Almendra1,60m", "691": "Centro de Planchado Combinado Perchero C/Pta. Grande Wengue", "700": "Multifunc. ECO 700 Blanco 1,80 x 0,60", "701": "Multifunc. ECO 701 Wengue 1,80 x 0,60", "702": "Multifunc. ECO 702 Jacarandá 1,80 x 0,60", "703": "Multifunc. ECO 703 Abedul 1,80 x 0,60", "705": "Multifunc. ECO 705 Blanco 1,80 x 0,60", "706": "Multifunc. ECO 706 Wengue 1,80 x 0,60", "707": "Multifunc. ECO 707 Jacarandá 1,80 x 0,60", "708": "Multifunc. ECO 708 Abedul 1,80 x 0,60", "710": "Multifunc. ECO 710 Escobero Blanco 1,80 x 0,40", "711": "Multifunc. ECO 711 Escobero Wengue 1,80 x 0,40", "712": "Multifunc. ECO 712 Escobero Jacarandá 1,80 x 0,40", "713": "Multifunc. ECO 713 Escobero Abedul 1,80 x 0,40", "715": "Multifunc. ECO 715 C/Metálicas Blanco 1,80 X 1,00", "716": "Multifunc. ECO 716 C/Metálicas Wengue 1,80 X 1,00", "717": "Multifunc. ECO 717 C/Metálicas Jacarandá 1,80 X 1,00", "718": "Multifunc. ECO 718 C/Metálicas Abedul 1,80 X 1,00", "720": "Multifunc. ECO 720 C/Metálicas Blanco 1,80 X 0,70", "721": "Multifunc. ECO 721 C/Metálicas Wengue 1,80 X 0,70", "722": "Multifunc. ECO 722 C/Metálicas Jacarandá 1,80 X 0,70", "723": "Multifunc. ECO 723 C/Metálicas Abedul 1,80 X 0,70", "725": "Multifunc. ECO 725 C/Metálicas Blanco 1,80 X 0,40", "726": "Multifunc. ECO 726 C/Metálicas Wengue 1,80 X 0,40", "727": "Multifunc. ECO 727 C/Metálicas Jacarandá 1,80 X 0,40", "728": "Multifunc. ECO 728 C/Metálicas Abedul 1,80 X 0,40", "730": "Multifunc. ECO 730 C/Patas Blanco 1,40 X 0,60", "731": "Multifunc. ECO 731 C/Patas Wengue 1,40 X 0,60", "732": "Multifunc. ECO 732 C/Patas Jacarandá 1,40 X 0,60", "733": "Multifunc. ECO 733 C/Patas Abedul 1,40 X 0,60", "735": "Multifunc. ECO 735 C/Patas Blanco 1,40 X 0,30", "736": "Multifunc. ECO 736 C/Patas Wengue 1,40 X 0,30", "737": "Multifunc. ECO 737 C/Patas Jacarandá 1,40 X 0,30", "738": "Multifunc. ECO 738 C/Patas Abedul 1,40 X 0,30", "740": "Multifunc. ECO 740 C/Patas Blanco 1,40 X 0,60", "741": "Multifunc. ECO 741 C/Patas Wengue 1,40 X 0,60", "742": "Multifunc. ECO 742 C/Patas Jacarandá 1,40 X 0,60", "743": "Multifunc. ECO 743 C/Patas Abedul 1,40 X 0,60", "745": "Multifunc. ECO 745 C/Patas Blanco 1,40 X 0,30", "746": "Multifunc. ECO 746 C/Patas Wengue 1,40 X 0,30", "747": "Multifunc. ECO 747 C/Patas Jacarandá 1,40 X 0,60", "748": "Multifunc. ECO 748 C/Patas Abedul 1,40 X 0,30", "773": "Centro de planchado plegable - Linosa", "780": "Centro de Planchado C/Cajón  Blanco", "791": "Centro de Planchado C/Estan Jacaranda", "792": "Centro de planchado c/estan. y ptas. - Abedul", "1203": "Mesa  PC con Alzada Mogno", "1210": "Escritorio Venecia 1,40", "1211": "Escritorio Jacaranda 1,40", "1212": "Escritorio  Abedul 1,40", "1213": "Escritorio  Wengue 1,40", "1214": "Escritorio Linosa 1,40", "1220": "Escritorio  Venecia 1,20", "1221": "Escritorio Jacaranda 1,20", "1222": "Escritorio Abedul 1,20", "1223": "Escritorio Wengue 1,20", "1224": "Escritorio  Linosa 1,20", "1230": "Escritorio Venecia 0,90", "1231": "Escritorio  Jacaranda 0,90", "1232": "Escritorio  Abedul 0,90", "1233": "Escritorio Wengue 0,90", "1234": "Escritorio  Linosa 0,90", "1240": "Escritorio Esquinero - Venecia", "1241": "Escritorio Esquinero - Jacaranda", "1242": "Escritorio Esquinero - Abedul", "1243": "Escritorio Esquinero - Wengue", "1250": "Escritorio Notebook Venecia", "1251": "Escritorio Notebook Jacaranda", "1252": "Escritorio Notebook Abedul", "1253": "Escritorio Notebook Wengue", "1254": "Escritorio Notebook Linosa", "1405": "Biblioteca Puertas Largas - Venecia 1,90", "1406": "Biblioteca Puertas Largas - Jacaranda 1,90", "1407": "Biblioteca Puertas Largas - Abedul 1,90", "1408": "Biblioteca Puertas Largas - Wengue 1,90", "1409": "Biblioteca Puertas Largas - Linosa 1,90", "1420": "Biblioteca Puertas Bajas - Venecia 1,90", "1421": "Biblioteca Puertas Bajas - Jacaranda 1,90", "1422": "Biblioteca Puertas Bajas - Abedul 1,90", "1423": "Biblioteca Puertas Bajas - Wengue 1,90", "1424": "Biblioteca Puertas Bajas - Linosa 1,90", "1430": "Biblioteca  Abierta Venecia 1,40", "1431": "Biblioteca  Abierta Jacaranda 1,40", "1432": "Biblioteca Abierta Abedul 1,40", "1433": "Biblioteca Abierta Wengue 1,40", "1434": "Biblioteca Abieta Linosa 1,40", "1440": "Biblioteca Puertas Largas Venecia", "1441": "Biblioteca Puertas Largas Jacaranda 1,40", "1442": "Biblioteca Puertas Largas Abedul 1,40", "1443": "Biblioteca Puertas Largas Wengue 1,40", "1444": "Biblioteca Puerta Largas Linosa 1,40", "1450": "Biblioteca Puertas Bajas Venecia 1,40", "1451": "Biblioteca Puertas Bajas Jacaranda 1,40", "1452": "Biblioteca Puertas Bajas Abedul 1,40", "1453": "Biblioteca Puertas Bajas Wengue 1,40", "1454": "Biblioteca Puertas Bajas Linosa 1,40", "1460": "Biblioteca Venecia 0,90", "1461": "Biblioteca Jacaranda 0,90", "1462": "Biblioteca Abedul 0,90", "1463": "Biblioteca Wengue 0,90", "1464": "Biblioteca Linosa 0,90", "1505": "Biblioteca abierta - Venecia 1,90", "1506": "Biblioteca abierta - Jacaranda 1,90", "1507": "Biblioteca abierta -  Abedul 1,90", "1508": "Biblioteca abierta - Wengue 1,90", "1509": "Biblioteca abierta - Linosa 1,90", "1603": "Mesa TV 0,70 Mongo", "1610": "Centro de Entretenimiento Nordico Wengue", "1611": "Centro de Entretenimiento Nordico Venecia", "1612": "Centro de Entretenimiento Nordico Jacaranda", "1613": "Centro de Entretenimiento Nordico Abedul", "1614": "Centro de Entretenimiento Nordico Linosa", "1615": "Centro de Entretenimiento Nordico Malta Blanco", "1620": "Rack de TV Premium Wengue", "1621": "Rack de TV Premium Jacaranda", "1622": "Rack de TV Premium Venecia", "1623": "Rack de TV Premium Blanco/Grafito", "1624": "Rack de TV Premium Grafito/Venecia", "1630": "Modulo en L Premium Wengue", "1632": "Modulo en L Premium Jacaranda", "1633": "Modulo en L Premium Abedul", "1634": "Modulo en L Premium Blanco", "1640": "Recibidor Premium Wengue", "1641": "Recibidor Premium Venecia", "1642": "Recibidor Premium Jacaranda", "1643": "Recibidor Premium Grafito/Blanco", "1644": "Recibidor Premium Grafito Jacaranda", "1650": "Mesa Ratona Deseo Amatista", "1652": "Mesa Ratona Deseo Jade", "3000": "Bajo Mesada Combo Blanco 1,60", "3001": "Bajo Mesada Combo Blanco/Wengue 1,60", "3002": "Bajo Mesada Combo Jacarandá 1,60", "3003": "Bajo Mesada Combo Abedul 1,60", "3004": "Bajo Mesada Combo Malta/Almendra 1,60", "3007": "Alacena Combo Blanco 1,60", "3008": "Alacena Combo Blanco/Wengue 1,60", "3009": "Alacena Combo Jacarandá 1,60", "3010": "Alacena Combo Abedul 1,60", "3011": "Alacena Combo Malta/Almendra 1,60", "3014": "Bajo Mesada Combo Blanco 1,40", "3015": "Bajo Mesada Combo Blanco/Wengue 1,40", "3016": "Bajo Mesada Combo Jacarandá 1,40", "3017": "Bajo Mesada Combo Abedul 1,40", "3018": "Bajo Mesada Combo Malta/Almendra 1,40", "3021": "Alacena Combo Blanco 1,40", "3022": "Alacena Combo Blanco/Wengue 1,40", "3023": "Alacena Combo Jacarandá 1,40", "3024": "Alacena Combo Abedul 1,40", "3025": "Alacena Combo Malta/Almendra 1,40", "3028": "Bajo Mesada Combo Blanco 1,20", "3029": "Bajo Mesada Combo Blanco/Wengue 1,20", "3030": "Bajo Mesada Combo Jacarandá 1,20", "3031": "Bajo Mesada Combo Abedul 1,20", "3032": "Bajo Mesada Combo Malta/Almendra 1,20", "3035": "Alacena Combo Blanco 1,20", "3036": "Alacena Combo Blanco/Wengue 1,20", "3037": "Alacena Combo Jacarandá 1,20", "3038": "Alacena Combo Abedul 1,20", "3039": "Alacena Combo Malta/Almendra 1,20", "3054": "Bajo Mesada Combo Blanco 0,40", "3055": "Bajo Mesada Combo Blanco/Wengue 0,40", "3056": "Bajo Mesada Combo Jacarandá 0,40", "3057": "Bajo Mesada Combo Abedul 0,40", "3058": "Bajo Mesada Combo Malta/Almendra 0,40", "3061": "Alacena Combo Blanco 0,40", "3062": "Alacena Combo Blanco/Wengue 0,40", "3063": "Alacena Combo Jacarandá 0,40", "3064": "Alacena Combo Abedul 0,40", "3065": "Alacena Combo Malta/Almendra 0,40", "3070": "Kit Triple Combo Blanco", "3071": "Kit Triple Combo Blanco/Wengue", "3072": "Kit Triple Combo Jacarandá", "3073": "Kit Triple Combo Abedul", "3074": "Kit Triple Combo Malta/Almendra", "3077": "Kit Doble Combo Blanco", "3078": "Kit Doble Combo Blanco/Wengue", "3079": "Kit Doble Combo Jacarandá", "3080": "Kit Doble Combo Abedul", "3081": "Kit Doble Combo Malta/Almendra", "3100": "Plac. Corred. Premium 2 Cpos Wengue 1,80", "3101": "Plac. Corred. Premium 2 Cpos Venecia 1,80", "3102": "Plac. Corred. Premium 2 Cpos Wengue/Venecia 1,80", "3103": "Plac. Corred. Premiun 2 Cpos Jacaranda 1,80", "3120": "Plac. Corred. Premium Blanco 1,80", "3121": "Plac. Corred. Premium Wengue 1,80", "3122": "Plac. Corred. Premium Jacarandá 1,80", "3123": "Plac. Corred. Premium Abedul 1,80", "3130": "Plac. Corred. Premium  Blanco 1,40", "3131": "Plac. Corred. Premium Wengue 1,40", "3132": "Plac. Corred. Premium Jacarandá 1,40", "3133": "Plac. Corred. Premium Abedul 1,40", "3150": "Plac. Corred. Suave Wengue 1,80", "3151": "Plac. Corred. Suave Venecia 1,80", "3152": "Plac. Corred. Suave Jacarandá 1,80", "3153": "Plac. Corred. Suave Abedul 1,80", "3160": "Plac. Corred. Suave Wengue 1,40", "3161": "Plac. Corred. Suave Venecia 1,40", "3162": "Plac. Corred. Suave Jacarandá 1,40", "3163": "Plac. Corred. Suave Abedul 1,40", "3170": "Plac. Corred. Suave Wengue 1,20", "3171": "Plac. Corred. Suave Venecia 1,20", "3172": "Plac. Corred. Suave Jacarandá 1,20", "3173": "Plac. Corred. Suave Abedul 1,20", "3300": "Placar Bahia 1,81 x 1,84 Roble (1 cpo)", "3301": "Placar Bahia 1,81 x 1,84 Mogno (1 cpo)", "3302": "Placar Bahia 1,81 x 1,84 Blanco (1 cpo)", "3303": "Placar Bahia 1,81 x 1,84 Wengue (1 cpo)", "3305": "Placar Bahia 1,81 x 1,84 Venecia (1 cpo)", "3310": "Placar Bahia 1,51 x 1,84 Roble (1 cpo)", "3311": "Placar Bahia 1,51 x 1,84 Mogno (1 cpo)", "3312": "Placar Bahia1,51 x 1,84 Blanco (1 cpo)", "3313": "Placar Bahia 1,51 x 1,84 Wengue (1 cpo)", "3314": "Placar Bahia 1,51 x 1,84 Jacaranda (1 cpo)", "3315": "Placar Bahia 1,51 x 1,84 Venecia (1 cpo)", "3320": "Placar Bahia1,21 x 1,84 Roble (1 cpo)", "3321": "Placar Bahia 1,21 x 1,84 Mogno (1 cpo)", "3322": "Placar Bahia 1,21 x 1,84 Blanco (1 cpo)", "3323": "Placar Bahia 1,21 x 1,84 Wengue (1 cpo)", "3324": "Placar Bahia 1,21 x 1,84 Jacaranda (1 cpo)", "3325": "Placar Bahia 1,21 x 1,84 Venecia (1 cpo)", "3330": "Placar Bahia 0,91 x 1,84 Roble (1 cpo)", "3331": "Placar Bahia 0,91 x 1,84 Mogno (1 cpo)", "3332": "Placar Bahia 0,91 x 1,84 Blanco (1 cpo)", "3333": "Placar Bahia 0,91 x 1,84 Wengue (1 cpo)", "3334": "Placar Bahia0,91 x 1,84 Jacaranda (1 cpo)", "3335": "Placar Bahia 0,91 x 1,84 Venecia (1 cpo)", "3340": "Placar Bahia 0,61 x 1,84 Roble (1 cpo)", "3342": "Placar Bahia 0,61 x 1,84 Blanco (1 cpo)", "3343": "Placar Bahia 0,61 x 1,84 Wengue (1 cpo)", "3345": "Placar Bahia 0,61 x 1,84 Venecia (1 cpo)", "3400": "Chifonier Linosa 1,20", "3402": "Chifonier Blanco 1,20", "3403": "Chifonier Wengue 1,20", "3404": "Chifonier Venecia 1,20", "3405": "Chifonier Jacaranda 1,20", "3410": "Chifonier Linosa 0,90", "3412": "Chifonier Blanco 0,90", "3413": "Chifonier Wengue 0,90", "3414": "Chifonier Venecia 0,90", "3415": "Chifonier Jacaranda 0,90", "3420": "Chifonier Linosa 0,60", "3422": "Chifonier Blanco 0,60", "3423": "Chifonier Wengue 0,60", "3424": "Chifonier Venecia 0,60", "3425": "Chifonier Jacaranda 0,60", "3441": "Plac. 2 Cpos. C/Met. 2,12 Mogno", "3444": "Plac. 2 Cpos. C/Met. 2,12 Jacaranda", "3453": "Plac. 2 Cpos. C/Met. 1,75 Venecia", "3454": "Plac. 2 Cpos. C/Met. 1,75 Jacaranda", "3463": "Plac. 2 Cpos. C/Met. 1,42 Venecia", "3502": "Plac. Bahia Blanco 1,80", "3503": "Plac. Bahia Wengue 1,80", "3504": "Plac. Bahia Jacaranda 1,80", "3505": "Plac. Bahia Venecia 1,80", "3506": "Plac. Bahia Linosa 1,80", "3507": "Plac. Bahia Abedul 1,80", "3508": "Plac. Bahia Malta 1,80", "3512": "Plac. Bahia Blanco 1,50", "3513": "Plac. Bahia Wengue 1,50", "3514": "Plac. Bahia Jacaranda 1,50", "3515": "Plac. Bahia Venecia 1,50", "3516": "Plac. Bahia Linosa 1,50", "3517": "Plac. Bahia Abedul 1,50", "3522": "Plac. Bahia Blanco 1,20", "3523": "Plac. Bahia  Wengue 1,20", "3524": "Plac. Bahia Jacaranda 1,20", "3525": "Plac. Bahia Venecia 1,20", "3526": "Plac. Bahia Linosa 1,20", "3527": "Plac. Bahia Abedul 1,20", "3528": "Plac. Bahia Malta 1,20", "3532": "Plac. Bahia Blanco 0,90", "3533": "Plac. Bahia Wengue 0,90", "3534": "Plac. Bahia Jacaranda 0,90", "3535": "Plac. Bahia Venecia 0,90", "3536": "Plac. Bahia Linosa 0,90", "3537": "Plac. Bahia Abedul 0,90", "3538": "Plac. Bahia Malta 0,90", "3542": "Plac. Bahia Blanco 0,60", "3543": "Plac. Bahia Wengue 0,60", "3544": "Plac. Bahia Jacaranda 0,60", "3545": "Plac. Bahia Venecia 0,60", "3546": "Plac. Bahia Linosa 0,60", "3547": "Plac. Bahia Abedul 0,60", "3550": "Plac. 2 Cpos. Nordico Linosa 2,10", "3552": "Plac. 2 Cpos. Nordico Wengue 2.10", "3553": "Plac. 2 Cpos. Nordico Venecia 2,10", "3554": "Plac. 2 Cpos. Nordico Jacaranda 2,10", "3560": "Plac. 2 Cpos. Nordico Linosa 1,75", "3561": "Plac. 2 Cpos. nordico 1,75 Mogno", "3562": "Plac. 2 Cpos. Nordico Wengue 1,75", "3563": "Plac. 2 Cpos. Nordico Venecia 1,75", "3564": "Plac. 2 Cpos. Nordico Jacaranda 1,75", "3570": "Plac. 2 Cpos. Nordico Linosa 1,40", "3572": "Plac. 2 Cpos. Nordico Wengue 1,40", "3573": "Plac. 2 Cpos. Nordico Venecia 1,40", "3574": "Plac. 2 Cpos. Nordico Jacaranda 1,40", "3580": "Plac. 2 Cpos. Nordico Linosa 1,00", "3582": "Plac. 2 Cpos. Nordico Wengue 1,00", "3583": "Plac. 2 Cpos. Nordico Venecia 1,00", "3584": "Plac. 2 Cpos. Nordico Jacaranda 1,00", "3590": "Plac. Corred. Suave Nordico Blanco 1,80", "3591": "Plac. Corred. Suave Nordico Wengue 1,80", "3592": "Plac. Corred. Suave Nordico Venecia 1,80", "3593": "Plac. Corred. Suave Nordico Jacaranda 1,80", "3594": "Plac. Corred. Suave Nordico Abedul 1,80", "3595": "Plac. Corred. Suave Nordico Malta / Almendra 1,80", "3600": "Vestidor Nordico Venecia", "3601": "Vestidor Nordico jacaranda", "3700": "Alacena Abaco Malta/Jade 0,30", "3701": "Alacena Abaco Avellana/Grafito 0,30", "3710": "Alacena Abaco Malta/Jade 0,40", "3711": "Alacena Abaco Avellana/Grafito 0,40", "3720": "Alacena Abaco Malta/Jade 0,60", "3721": "Alacena Abaco Avellana/Grafito 0,60", "3730": "Alacena Abaco Malta/Jade 0,60 Micro", "3731": "Alacena Abaco Avellana/Grafito 0,60 Micro", "3740": "Alacena Abaco Malta/Jade 0,80", "3741": "Alacena Abaco Avellana/Grafito 0,80", "3750": "Alacena Abaco Malta/Jade 0,75 Esquinero", "3751": "Alacena Abaco Avellana/Grafito 0,75 Esquinero", "3800": "Bajo Mesada Abaco Malta/Jade 0,30", "3801": "Bajo Mesada Abaco Avellana/Grafito 0,30", "3810": "Bajo Mesada Abaco Malta/Jade 0,40", "3811": "Bajo Mesada Abaco Avellana/Grafito 0,40", "3820": "Bajo Mesada Abaco Malta/Jade 0,60 Cajones", "3821": "Bajo Mesada Abaco Avellana/Grafito 0,60 Cajones", "3830": "Bajo Mesada Abaco Malta/Jade 0,60 Puertas", "3831": "Bajo Mesada Abaco Avellana/Grafito 0,60 Puertas", "3840": "Bajo Mesada Abaco Malta/Jade 0,80 Cajones", "3841": "Bajo Mesada Abaco Avellana/Grafito 0,80 Cajones", "3850": "Bajo Mesada Abaco Malta/Jade 0,80 Puertas", "3851": "Bajo Mesada Abaco Avellana/Grafito 0,80 Puertas", "3860": "Bajo Mesada Abaco Malta/Jade Esquinero", "3861": "Bajo Mesada Abaco Avellana/Grafito Esquinero", "3900": "Vestidor Fusion Avellana c/Cajones", "3901": "Vestidor Fusion Blanco c/Cajones", "3902": "Vestidor Fusion Jacaranda c/Cajones", "3910": "Vestidor Fusion Avellana c/Estantes", "3911": "Vestidor Fusion Blanco c/Estantes", "3912": "Vestidor Fusion Jacaranda c/Estantes", "3920": "Vestidor Fusion Avellana c/Percheros", "3921": "Vestidor Fusion Blanco c/Percheros", "3922": "Vestidor Fusion Jacaranda c/Percheros", "3950": "Vestidor Fusion Avellana c/Cajones Extensor", "3951": "Vestidor Fusion Blanco c/Cajones Extensor", "3952": "Vestidor Fusion Jacaranda c/Cajones Extensor", "3960": "Vestidor Fusion Avellana c/Estantes Extensor", "3961": "Vestidor Fusion Blanco c/Estantes Extensor", "3962": "Vestidor Fusion Jacaranda c/Estantes Extensor", "3970": "Vestidor Fusion Avellana c/Percheros Extensor", "3971": "Vestidor Fusion Blanco c/Percheros Extensor", "3972": "Vestidor Fusion Jacaranda c/Percheros Extensor", "4000": "Bajo Mesada Combo 2025 Blanco 1,60", "4001": "Bajo Mesada Combo 2025 Blanco/Wengue 1,60", "4002": "Bajo Mesada Combo 2025 Jacarandá 1,60", "4003": "Bajo Mesada Combo 2025 Abedul 1,60", "4004": "Bajo Mesada Combo 2025 Malta/Almendra 1,60", "4007": "Alacena Combo 2025 Blanco 1,60", "4008": "Alacena Combo 2025 Blanco/Wengue 1,60", "4009": "Alacena Combo 2025 Jacarandá 1,60", "4010": "Alacena Combo 2025 Abedul 1,60", "4011": "Alacena Combo 2025 Malta/Almendra 1,60", "4014": "Bajo Mesada Combo 2025 Blanco 1,40", "4015": "Bajo Mesada Combo 2025 Blanco/Wengue 1,40", "4016": "Bajo Mesada Combo 2025 Jacarandá 1,40", "4017": "Bajo Mesada Combo 2025 Abedul 1,40", "4018": "Bajo Mesada Combo 2025 Malta/Almendra 1,40", "4021": "Alacena Combo 2025 Blanco 1,40", "4022": "Alacena Combo 2025 Blanco/Wengue 1,40", "4023": "Alacena Combo 2025 Jacarandá 1,40", "4024": "Alacena Combo 2025 Abedul 1,40", "4025": "Alacena Combo 2025 Malta/Almendra 1,40", "4028": "Bajo Mesada Combo 2025 Blanco 1,20", "4029": "Bajo Mesada Combo 2025 Blanco/Wengue 1,20", "4030": "Bajo Mesada Combo 2025 Jacarandá 1,20", "4031": "Bajo Mesada Combo 2025 Abedul 1,20", "4032": "Bajo Mesada Combo 2025 Malta/Almendra 1,20", "4035": "Alacena Combo 2025 Blanco 1,20", "4036": "Alacena Combo 2025 Blanco/Wengue 1,20", "4037": "Alacena Combo 2025 Jacarandá 1,20", "4038": "Alacena Combo 2025 Abedul 1,20", "4039": "Alacena Combo 2025 Malta/Almendra 1,20", "4054": "Bajo Mesada Combo 2025 Blanco 0,40", "4055": "Bajo Mesada Combo 2025 Blanco/Wengue 0,40", "4056": "Bajo Mesada Combo 2025 Jacarandá 0,40", "4057": "Bajo Mesada Combo 2025 Abedul 0,40", "4058": "Bajo Mesada Combo 2025 Malta/Almendra 0,40", "4061": "Alacena Combo 2025 Blanco 0,40", "4062": "Alacena Combo 2025 Blanco/Wengue 0,40", "4063": "Alacena Combo 2025 Jacarandá 0,40", "4064": "Alacena Combo 2025 Abedul 0,40", "4065": "Alacena Combo 2025 Malta/Almendra 0,40", "4070": "Kit Triple Combo 2025 Blanco", "4071": "Kit Triple Combo 2025 Blanco/Wengue", "4072": "Kit Triple Combo 2025 Jacarandá", "4073": "Kit Triple Combo 2025 Abedul", "4074": "Kit Triple Combo 2025 Malta/Almendra", "4077": "Kit Doble Combo 2025 Blanco", "4078": "Kit Doble Combo 2025 Blanco/Wengue", "4079": "Kit Doble Combo 2025 Jacarandá", "4080": "Kit Doble Combo 2025 Abedul", "4081": "Kit Doble Combo 2025 Malta/Almendra", "4220": "Mesa de Luz KPM Malta/Blanco", "4282": "Rack TV KPM Cajon 1,35 Malta/Almendra", "6020": "Sillas Samara Madesa x 4 Rustic / Negro", "6021": "Mesa Samara Madesa C/Tapa  Rustic / Negro", "6023": "Mesa Lexy Madesa Rustic", "6025": "Mesa Cintia Madesa Rustic", "6026": "Sillas Angel Madesa x 4 Rustic/Beige", "6027": "Mesa Angel Madesa Rustic/Beige", "6030": "Rack tv Le Mans Madesa Rustic/Blanco", "6032": "Rack tv Turin Madesa Negro", "6050": "Vanitory 537C con espejo Blanco", "6051": "Vanitory 537 con espejo Blanco", "6052": "Vanitory Toronto 670 con espejo Aveiro Fume", "11138": "Alacena 1,40 c/estantes.Roble", "11152": "Kit Doble 700x1860x470 Blanca/Wengue", "100002": "Clavos 8 - 20", "100003": "Clavo 10 x 10 (1,3 x 13)", "100051": "Clavos Coil 22 - 65 S x caja", "100101": "Grampas 100 - 50 (Tarimas) x 10.000", "100103": "Grampas 90 - 40 por estuche", "100106": "Grampas 90 - 25 por estuche", "100108": "Grampas 84 - 14 por estuche (Base Cama)", "110000": "Tornillo  3,5d x 16 mm. plateado", "110001": "Tornillo fix 3,5d x 14 mm. plateado", "110002": "Tornillo drywall 3,5d x 25 mm. negro", "110003": "Tornillo drywall 3,5d x 38 mm. negro", "110004": "Tornillo drywall 3,5d x 50 mm. negro", "110005": "Tornillo drywall 3,5d x 50 mm. plateado", "110006": "Tornillo drywall 3,5d x 50 mm. dorado", "110007": "Tornillo drywall  4d x 60 mm.", "110047": "Tornillo fix 3,5d x 14 mm. - en bolsitas x4 uds.", "110048": "Tornillo fix 3,5d x 14 mm. - en bolsitas x8 uds.", "110051": "Tornillo W 1/4\"d x 57 mm. negro", "110052": "Tornillo W 1/4\"d x 57 mm. plateado", "110101": "Tornillo flangeado c/punta 3,5d x 30 mm.", "110102": "Tornillo flangeado 5d x 40 mm.", "110103": "Tornillo flangeado aguja 4,2d x 19 mm.", "110105": "Tornillo flangeado 5 x 60 dorado", "110106": "Tornillo flangeado 5 x 50 dorado", "110107": "Tornillo flangeado c/punta 3,5d x 25 mm.", "110151": "Tornillo Euro 6 x 10 mm.", "110152": "Tornillo Euro 6 x 8 mm.", "110201": "Tornillo Parker Nº 12 x 1\"", "110202": "Tornillo Parker Nº 6 x 1\"", "110203": "Tornillo Fresado 6 x 30mm.", "110204": "Tornillo flangeado c/punta 4,0d x 25 mm.", "110251": "Tuerca 1/4\" elíptica", "110253": "Tuerca aluminio media luna", "120001": "Minifix 12 x 10 mm.", "120002": "Minifix 15 x 12 mm.", "120052": "Perno Minifix bilateral", "120101": "Tapa minifix blanco", "120102": "Tapa minifix negro", "130001": "Tarugo de madera 6d x 30 mm.", "130002": "Tarugo de madera 8d x 30 mm.", "130003": "Tarugo de madera 8d x 20 mm.", "200001": "Manija Athena cromo mate cazoleta", "200002": "Manija Barral paso 160 mm.Gris", "200003": "Manija Gamma nikel", "200004": "Manija Prince paso 128 mm. cromo mate laqueada", "200005": "Manija Benneton paso 160 mm. nickel", "200007": "Manija Tirador Gala Cuadrada", "200008": "Manija 32mm", "200009": "Manija Perfil 160mm Anodizado", "210001": "Corredera plástica", "210051": "Corredera metálica 300 mm. (juego)", "210052": "Corredera metálica 400 mm. (juego)", "210053": "Corredera metálica 450 mm. (juego)", "210055": "Corredera Guia Telescopica 30x400 mm.( Mini Light-VestidorMod)", "210056": "Corredera Guia Telescopica 35x400 mm. ( Light- CocAba)", "220001": "Pata plástica cuadrada fija 80 mm.", "220002": "Pata plástica cuadrada regulable 100 mm.", "220003": "Pata plástica c/regatón chico p/bajo mesada blanco", "220004": "Pata plástica cónica negro", "220006": "Pata plástica cónica mogno", "220007": "Pata plástica cónica blanco", "220008": "Pata plástica cónica gris", "220010": "Pata plástica 100mm x 45mm", "220011": "Pata Regulable 165mm Aluminio", "220051": "Pata p/cama 198 mm. (1\"1/2 x 2\")", "222045": "Plantilla de Numero p/ Sellos", "230001": "Soporte plástico colgante alacena", "230002": "Soporte plástico p/caño - MARRON", "230003": "Soporte metálico p/caño oval", "230004": "Soporte \"J\"", "230005": "Soporte Escuadra L Zinc Blanco", "230006": "Tapa Escuadra L Plastica Blanca", "230051": "Soporte Tope plástico p/puerta blanco", "230052": "Patin Plastico Puerta Corrediza", "230101": "Soporte metálico p/estante (5/5)", "230151": "Escuadra plástica en \"L\" - Negra", "230152": "Escuadra \"L\" Metal Zinc Blanco", "230201": "Zapatito Base Plástico p/15 mm. Negro", "230202": "Zapatito plástico p/18 mm. Negro", "230251": "Chapa cuadrada c/4 orificios", "230302": "Rejilla posa plancha", "240001": "Bisagra (bolsita x 1 c/tornillos)", "240002": "Bisagra (bolsita x 2 c/tornillos)", "240003": "Bisagra (bolsita x 3 c/tornillos)", "240004": "Bisagra sin tornillos", "240005": "Bisagra c/ amortiguador 35mm Codo Bajo", "240006": "Bisagra W90 35mm Angulo 0 Esquinero", "240007": "Bisagra 35mm Codo Super Alto", "240051": "Bisagra Kit Botinero (juego x 2) Negra", "250002": "Rueda p/puerta placard corredizo", "250003": "Rueda camera baja", "250005": "Rueda c/escuadra", "300005": "Perfil H 600 mm. blanco", "300008": "Perfil H 720 mm. Blanco", "300009": "Perfil H 1100 mm. blanco", "300010": "Perfil H 1135 mm. blanco", "300011": "Perfil H 1350 mm. Blanco", "300012": "Perfil H 1465 mm. blanco", "300014": "Perfil H 350 mm. blanco", "300015": "Perfil H 890 mm. blanco", "300016": "Perfil H 1745 mm. blanco", "300017": "Perfil H 1810 mm. blanco", "300018": "Perfil H 1325 mm. blanco", "300020": "Perfil H 780 mm. blanco", "300021": "Perfil H 757 mm. blanco", "300022": "Perfil H 550 mm. blanco", "300025": "Perfil H 1220 mm. blanco", "300026": "Perfil H 660 mm. blanco", "300030": "Perfil H 378 mm. blanco", "300031": "Perfil H 520 mm. blanco", "300032": "Perfil H 560 mm. blanco", "300033": "Perfil H 650 mm. blanco", "300034": "Perfil H 570 mm. blanco", "300035": "Perfil H 420 mm. blanco", "300041": "Perfil H 3000 mm. Blanco", "300042": "Perfil H 1725 mm. Blanco", "300043": "Perfil H 1235 mm. Blanco", "300044": "Perfil H 670 mm. Blanco", "300047": "Perfil H 430 mm. Blanco", "300048": "Perfil H 490 mm. (Mesa Luz Premium)", "300117": "Perfil H 1675mm. Blanco", "300118": "Perfil H 1335 mm. blanco", "300119": "Perfil H 875 mm. blanco", "300127": "Perfil H 1700 mm. blanco", "300137": "Perfil H 785 mm. blanco", "300138": "Perfil H 1435 mm. blanco", "300139": "Perfil H 1765 mm. blanco", "300148": "Perfil H 1705 mm Blanco", "300157": "Perfil H 590mm blanco", "300384": "Perfil H 557 mm. blanco", "300917": "Bisagra CODO", "300918": "Bisagra BASE", "310001": "Vidrio 546 x 167 mm.", "310002": "Vidrio 590 x 325 mm.", "310003": "Vidrio 595 x 188 mm.", "310005": "Vidrio 670 x 219 mm.", "310006": "Vidrio 995 x 227 mm.", "310007": "Vidrio 995 x 321 mm.", "310008": "Vidrio 1007 x 167 mm.", "320001": "Travesaño 820 mm. (cama 1 p)", "320002": "Travesaño 1420 mm. (cama 2 p)", "320003": "Travesaño pino Cama Triple", "330001": "Barral de madera 277 mm.", "330003": "Barral de madera 306 mm.", "330004": "Barral de madera 326 mm.", "330006": "Barral de madera 484 mm.", "330007": "Barral de madera 564 mm.", "330008": "Barral de madera 574 mm.", "330010": "Barral de madera 603 mm.", "330011": "Barral de madera 657 mm.", "330012": "Barral de madera 673 mm.", "340002": "Fleje 11 x 63 x 1900 mm.", "400001": "Pistón gas 80 N", "400003": "Silicona acética", "400004": "Pistón 80 N fuerza inversa", "410002": "Tela 98x42", "500001": "Aluminio Barra Perfil Superior 6 mts. (cód. 3127-417 gr./mts.)", "500002": "Aluminio Barra Perfil Inferior 6 mts. (cód. 3126-167 gr./mts.)", "500005": "Alum. - Superior 1348 mm", "500008": "Alum. - Superior 1208 mm", "500010": "Alum. - Superior 1193 mm", "500016": "Alum. - Inferior 1348 mm", "500021": "Alum. - Caño Oval 669 mm", "500022": "Alum. - Caño Oval 600 mm", "500032": "Alum. - Manija 1723 mm", "500034": "Alum. - Manija 1212 mm", "500051": "Aluminio caño oval  3 mts. (cód. 3128-155 gr./mts.)", "500101": "Aluminio perfil manija corto 4,30mts. (cód. 3129 -306 gr./mts.)", "500102": "Aluminio perfil manija largo 5,21mts. (cód. 3129-306 gr./mts.)", "500110": "Ribbons 100mm Ancho", "500112": "Etiqueta liner blanco 100 x 50 (x caja)", "600001": "Cartón corrugado 1600 x 2500 mm.(act)", "600061": "Cartón corrugado 1500 x 3300 mm. (act)", "600062": "Cartón corrugado 1500 x 2000 mm. (act)", "600087": "Cartón corrugado 1500 x 2700 mm. (act)", "600158": "Cartón corrugado 1400 x 2000 mm.", "600162": "Cartón corrugado 1400 x 1800 mm. (act)", "600174": "Cartón corrugado 1400 x 2450 mm. (act)", "600176": "Cartón corrugado 1400 x 2000 mm. (Act)", "600213": "Carton corrugado 1000 x 3900", "600217": "Carton corrugado 950 x 2550 mm. (act)", "600301": "Cartón corrugado 1250 x 3900 mm.(act)", "600305": "Cartón corrugado 1250 x 3000 mm.", "600311": "Cartón corrugado 1250 x 2350 mm.", "600312": "Cartón corrugado 1250 x 2900 mm.(act)", "600356": "Cartón corrugado 1200 x 2500 mm. (act)", "600358": "Cartón corrugado 1200 x 2250 mm. (act)", "600403": "Cartón corrugado 1150 x 2900 mm. (act)", "600460": "Cartón corrugado 1100 x 2500 mm. (Act)", "600512": "Cartón corrugado 1050 x 2400 mm. (act)", "600603": "Cartón corrugado 950 x 3700 mm. (act)", "600651": "Cartón corrugado 650 x 2200 mm. (act)", "600703": "Carton corrugado 1450 x 4000 mm (act)", "600901": "Cartón corrugado 1900 x 2300 mm.", "600961": "Cartón corrugado 2000 x 2400 mm. (act)", "600962": "Cartón corrugado 2000 x 3100 mm. (act)", "600970": "Carton corrugado 2000 x 2000 mm. (act)", "610001": "Fan Fold ancho 950 mm.", "610007": "Fan Fold ancho 1250 mm.", "610009": "Fan Fold ancho 1350 mm.", "610010": "Fan Fold ancho1400 mm.", "620003": "Hotmelt p/Cajas 7590/98/2424 (NO USAR)", "620004": "Hotmelt  adhesivo en barras Ambar (velitas- caja x 25kg)", "620005": "Hotmelt Jowat 288-70 h p/filos", "620006": "Hotmelt p/cajas Adecol CQ - 4196", "620007": "Hotmelt Paramelt 9457 (Cajas)", "630001": "Bolsa 300 x 300 x 0,04 mm.", "630004": "Bolsa 500 x 300 x 0,04 mm.", "630005": "Bolsa 550 x 300 x 0,04 mm.", "630006": "Bolsa 600 x 300 x 0,05 mm.", "630007": "Bolsa 700 x 300 x 0,05 mm.", "630008": "Bolsa 750 x 300 x 0,05 mm.", "630009": "Bolsa 300 x 210 x 0,04 mm.", "630010": "Bolsa 400 x 210 x 0,04 mm.", "630011": "Bolsa 450 x 210 x 0,04 mm.", "630050": "Bolsa Tubo x 300 x 0,04 mm.", "630052": "Bolsa Tubo x 120 x 0,04 mm.", "630060": "Bolsa Lámina Maq. 330 x 0,07 mm. (x rollo 25kg)", "630061": "Bolsa 500 x 350 x 0,06 mm. (provisional)", "630062": "Bolsa 650 x 350 x 0,04 mm. (provisional)", "640001": "Film streech chico 100 mm.", "640012": "Film streech para máquina automática (Kg)", "645002": "Tarima 900 x 1200 mm.", "645003": "Tarima 1200 x 1200 mm.", "645004": "Tarima 1400 x 1200 mm.", "645005": "Tarima 1800 x 1200 mm.", "650001": "Cinta de papel", "650051": "Cinta de embalar ancha tipo scotch", "670000": "Resma por 500 hojas 70gr", "680000": "Sello automático", "680002": "Tinta Cod 801 25 ml Azul", "680003": "Tinta Color Blanco de 500 Ml.", "680050": "Mecha 12 mm.", "680200": "Cinta Métrica", "680202": "Grasa en Aerosol", "680203": "Rost Off - aflojador desoxidante", "680204": "Wurth Bonder 2g", "680205": "Grafito en spray", "680207": "Cutter de Seguridad", "680210": "Pintura en Aerosol - Blanco", "680211": "Pintura en Aerosol - Negro", "680212": "Pintura en Aerosol - Rojo", "680213": "Pintura en Aerosol - Naranja", "680214": "Pintura en Aerosol - Azul", "680215": "Pintura en Aerosol - Celeste", "680216": "Pintura en Aerosol - Verde", "680217": "Pintura en Aerosol - Amarillo", "680218": "Pintura en Aerosol - Gris Plata", "680221": "Cuchilla trapezoidal p/ Cutter", "680234": "Llave combinada 21 mm.", "680236": "Destornillador Plano 6,5 x 150 mm.", "680238": "Destornillador Phillips 7,5", "680239": "Destornillador Phillips 5,5", "680240": "Destornillador Phillips 2,5", "680400": "Sierra 520 Metal Duro", "680401": "Sierra 430 Metal Duro", "680403": "Sierra 350 Metal Duro", "680404": "Sierra 200 Incisor Selco Metal Duro", "680405": "Sierra 200 Incisor Gabbiani Metal Duro", "680410": "Mecha 10 x 70 Pasante Derecha", "680411": "Mecha 10 x 70 Pasante Izquierda", "680412": "Mecha 35 x 57 No pasante p/ bisagra", "680452": "Sierra 380 Metal Duro", "680531": "Mecha 12x57 izquierda no pasante", "680637": "Pala Cajón Plástica Con Mango Y Ruedas", "690065": "Chocla", "690066": "Rodillo 8 cm", "700001": "Melamina Jade 15 mm.", "700004": "Melamina Venezia 15 mm.", "700005": "Melamina Venezia 25 mm.", "700006": "Melamina Wengue 25 mm.", "700007": "Melamina Wengue  15 mm.", "700008": "Melamina Roble 15 mm.", "700010": "Melamina Mogno 25 mm.", "700011": "Melamina Blanco 15 mm.", "700012": "Melamina Blanco 25 mm.", "700017": "Crudo Faplac 15 mm. (1830 X 2750mm)", "700019": "Crudo Faplac 18 mm.", "700020": "MDF 12 mm.", "700021": "MDF 3 mm.", "700022": "Fondo Blanco Pintado 2,8 mm.", "700025": "Fondo Negro Profundo 3 mm.", "700027": "Fondo Folio Blanco 3 mm.", "700029": "Melamina Abedul 15 mm.", "700030": "Melamina Abedul 25 mm.", "700031": "Melamina Jacarandá 15 mm.", "700032": "Melamina Jacarandá 25 mm.", "700041": "Melamina Tuareg 18 mm.", "700042": "Melamina Avellana 15 mm.", "700043": "Melamina Peral 15 mm.", "700045": "Melamina Grafito 15 mm.", "700046": "Melamina Almendra 15 mm.", "700047": "Melamina Roble Americano 15 mm.", "700048": "Melamina Malta 15 mm.", "700049": "Melamina Blanco 15 mm. (Brasil)", "700500": "Filo de papel Blanco 19 mm.", "700501": "Filo de papel Wengue 19 mm.", "700503": "Filo de papel Mogno 19 mm.", "700506": "Filo de papel Larice Scuro 19 mm.", "700512": "Filo de papel Abedul 19 mm.", "700513": "Filo de papel Jacarandá 19 mm.", "700516": "Filo de papel Blanco 29 mm.", "700517": "Filo de papel Wengue 29 mm.", "700518": "Filo de papel Venecia 29 mm.", "700521": "Filo de papel Larice Scuro 29 mm.", "700523": "Filo de papel Abedul 29 mm.", "700524": "Filo de papel Jacarandá 29 mm.", "700526": "Filo de papel Blanco UV 35mm", "700528": "Filo de papel Wengue 35 mm.", "700529": "Filo de papel Venecia 35 mm.", "700530": "Filo de papel Mogno 35 mm.", "700542": "filo de papel blanco UV 29 mm", "700543": "Filo de papel blanco UV 18 mm", "700544": "Filo de papel Peral 19 mm.", "700545": "Filo de papel Grafito 19mm", "700546": "Filo de papel Roble Americano 19 mm.", "700547": "Filo de papel Almendra 19mm", "700550": "Filo de Papel Jade 19mm", "700551": "Filo de Papel Avellana 19mm", "700552": "Filo de Papel Malta  19mm", "700553": "Filo de papel Venecia 19 mm.", "900002": "Kit Armador - Bolso +10 htas", "900325": "Mecha 8 X 70 IZQ", "900326": "Mecha 8 x 70 Derecha", "900327": "Mecha 8 x 57 Derecha no Pasante", "900328": "Mecha 8 x 57 IZQ. no Pasante", "900329": "Mecha12 X 57 Der. no Pasante", "900330": "Mecha 12 X 57 IZQ.", "900331": "Mecha 15 X 57 IZQ.", "900332": "Mecha 15 X 57 Derecha", "900333": "Mecha 5 X 57 Derecha Pasante", "900334": "Mecha5 X 57 Derecha no Pasante", "900335": "Mecha 5 X  57 IZQ. no Pasante", "900336": "Mecha 5 X 57 IZQ. Pasante", "900337": "Mecha 6 X 57 Derecha", "900338": "Mecha 6 X 57 IZQ.", "900339": "Mecha 20 X 57 Derecha", "900340": "Mecha 26 X 57 Derecha", "900341": "Mecha 26 X 57 Derecha - Otra Marca", "900342": "Mechas Varias Discontinuas", "900346": "Mecha 8 x 70 Derecha No Pasante", "900347": "Mecha 8 x 70 Izquierda No Pasante", "900348": "Espatula", "900357": "Cerradura Base Cuadrada19x22MM", "900403": "Papel Higienico", "900404": "Toallas p/ manos (caja)", "900661": "Pinza Universal 7\"", "1000920": "Mantenimiento de Maquinas y Herramientas", "1001056": "Gastos de armados de Muebles", "1001117": "Desperdicio de Carton", "1001135": "Papeleria e Insumos para fábrica", "1001500": "Via Ruli de  3 metros c/una", "61110403": "REA JET HR - Pigmented Black HD - Chip (Cartuchos Embalaje)"}
+;
+
+function onCodigoInput(val) {
+  val = val.trim();
+  if (!val) { closeSuggestions(); return; }
+
+  // Exact match -> fill description immediately
+  if (ARTICULOS[val]) {
+    document.getElementById('fInsumo').value = ARTICULOS[val];
+    closeSuggestions();
+    return;
+  }
+
+  // Partial match -> show dropdown
+  const matches = Object.entries(ARTICULOS).filter(([k, v]) =>
+    k.startsWith(val) || v.toLowerCase().includes(val.toLowerCase())
+  ).slice(0, 12);
+
+  if (!matches.length) { closeSuggestions(); return; }
+
+  const box = document.getElementById('sugerencias');
+  box.innerHTML = matches.map(([k, v]) =>
+    `<div class="sug-item" onmousedown="selectSugerencia('${k}','${v.replace(/'/g,"\'")}')">
+      <span style="font-family:'DM Mono',monospace;color:var(--accent);font-size:0.78rem;min-width:60px;display:inline-block;">${k}</span>
+      <span style="color:var(--text);font-size:0.8rem;">${v}</span>
+    </div>`
+  ).join('');
+  box.style.display = 'block';
+}
+
+function selectSugerencia(codigo, desc) {
+  document.getElementById('fCodigo').value = codigo;
+  document.getElementById('fInsumo').value = desc;
+  closeSuggestions();
+}
+
+function closeSuggestions() {
+  const box = document.getElementById('sugerencias');
+  if (box) box.style.display = 'none';
+}
+// ===== END LOOKUP =====
+
+// ===== STATE =====
+let cotizaciones = [];
+let historico = {};
+let pendingUpdate = null;
+
+// ===== SUPABASE CONFIG =====
+const SB_URL = 'https://eguneznyoxdcwznrgonx.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVndW5lem55b3hkY3d6bnJnb254Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3OTMzMTgsImV4cCI6MjA5NDM2OTMxOH0.YyDt2UUDE9caS0WiZOmwl5Lu27V65yt83at9FEF0wus';
+
+async function sbFetch(path, opts = {}) {
+  const url = SB_URL + '/rest/v1/' + path;
+  const res = await fetch(url, {
+    ...opts,
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': opts.prefer || '',
+      ...(opts.headers || {})
+    }
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function initTables() {
+  try {
+    await sbFetch('cotizaciones?limit=1');
+    await sbFetch('historico_precios?limit=1');
+    return true;
+  } catch(e) {
+    showSetupBanner();
+    return false;
+  }
+}
+
+function showSetupBanner() {
+  const banner = document.getElementById('setupBanner');
+  if (banner) banner.style.display = 'flex';
+}
+
+// ===== DB OPERATIONS =====
+async function guardarDB() { /* saves happen per-operation */ }
+
+async function sbInsertCotizacion(c) {
+  await sbFetch('cotizaciones', {
+    method: 'POST',
+    prefer: 'return=minimal',
+    body: JSON.stringify({
+      sb_id: c.id, fecha: c.fecha, insumo: c.insumo, codigo: c.codigo,
+      proveedor: c.proveedor, cuenta: c.cuenta || '', cuit: c.cuit || '',
+      precio: c.precio, moneda: c.moneda,
+      score_entregas: c.scores.Entregas, score_precio: c.scores.Precio,
+      score_disponibilidad: c.scores.Disponibilidad, score_plazo: c.scores.Plazo,
+      total: c.total
+    })
+  });
+}
+
+async function sbUpdateCotizacion(c) {
+  await sbFetch('cotizaciones?sb_id=eq.' + c.id, {
+    method: 'PATCH',
+    prefer: 'return=minimal',
+    body: JSON.stringify({
+      fecha: c.fecha, precio: c.precio, moneda: c.moneda,
+      score_entregas: c.scores.Entregas, score_precio: c.scores.Precio,
+      score_disponibilidad: c.scores.Disponibilidad, score_plazo: c.scores.Plazo,
+      total: c.total
+    })
+  });
+}
+
+async function sbUpdateAllScores(items) {
+  await Promise.all(items.map(c =>
+    sbFetch('cotizaciones?sb_id=eq.' + c.id, {
+      method: 'PATCH',
+      prefer: 'return=minimal',
+      body: JSON.stringify({ score_precio: c.scores.Precio, total: c.total })
+    })
+  ));
+}
+
+async function sbDeleteCotizacion(id) {
+  await sbFetch('cotizaciones?sb_id=eq.' + id, { method: 'DELETE' });
+}
+
+async function sbInsertHistorico(histKey, entry) {
+  const [codigo, insumo, proveedor] = histKey.split('||');
+  await sbFetch('historico_precios', {
+    method: 'POST',
+    prefer: 'return=minimal',
+    body: JSON.stringify({
+      codigo, insumo, proveedor,
+      fecha: entry.fecha, precio: entry.precio, moneda: entry.moneda
+    })
+  });
+}
+
+async function cargarDB() {
+  setLoading(true);
+
+  // Theme - load from localStorage immediately
+  try {
+    const theme = localStorage.getItem('evaluacion_theme');
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme','light');
+      ['themeLabel2'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='Claro'; });
+    } else if (theme === 'dark') {
+      document.documentElement.removeAttribute('data-theme');
+      ['themeLabel2'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='Oscuro'; });
+    }
+  } catch(e) {}
+
+  const ok = await initTables();
+  if (!ok) { setLoading(false); return; }
+
+  try {
+    const rows = await sbFetch('cotizaciones?order=fecha.asc');
+    cotizaciones = (rows || []).map(r => ({
+      id: r.sb_id, fecha: r.fecha, insumo: r.insumo, codigo: r.codigo,
+      proveedor: r.proveedor, cuenta: r.cuenta, cuit: r.cuit,
+      precio: parseFloat(r.precio), moneda: r.moneda,
+      scores: {
+        Entregas: r.score_entregas, Precio: r.score_precio,
+        Disponibilidad: r.score_disponibilidad, Plazo: r.score_plazo
+      },
+      total: r.total
+    }));
+
+    const hist = await sbFetch('historico_precios?order=fecha.asc');
+    historico = {};
+    (hist || []).forEach(r => {
+      const k = r.codigo + '||' + r.insumo + '||' + r.proveedor;
+      if (!historico[k]) historico[k] = [];
+      historico[k].push({ fecha: r.fecha, precio: parseFloat(r.precio), moneda: r.moneda });
+    });
+
+    const groups = {};
+    cotizaciones.forEach(c => {
+      const k = c.codigo+'||'+c.insumo;
+      if(!groups[k]) groups[k]=[];
+      groups[k].push(c);
+    });
+    Object.values(groups).forEach(g => recalcPriceScores(g));
+
+  } catch(e) {
+    console.error('Error loading:', e);
+    showToast('⚠️ Error al cargar: ' + e.message, 'var(--red)');
+  }
+
+  setLoading(false);
+  renderResults();
+}
+
+function setLoading(on) {
+  const el = document.getElementById('loadingBar');
+  if (el) el.style.display = on ? 'block' : 'none';
+}
+
+// ===== INIT =====
+document.getElementById('fFecha').valueAsDate = new Date();
+
+const HINTS = {
+  Entregas:      ['No cumple', 'Cumple a veces', 'Cumple siempre'],
+  Disponibilidad:['Más de 15 días', 'Entre 7 a 10 días', 'Inmediata'],
+  Plazo:         ['Adelantado', 'Corto', '+30/60 días']
+};
+
+['Entregas','Disponibilidad','Plazo'].forEach(param => {
+  document.getElementById('f' + param).addEventListener('change', function() {
+    const val = parseInt(this.value);
+    document.getElementById('hint' + param).textContent = val ? HINTS[param][val-1] : '—';
+    updatePreview();
+  });
+});
+
+function updatePreview() {
+  const e = parseInt(document.getElementById('fEntregas').value) || 0;
+  const d = parseInt(document.getElementById('fDisponibilidad').value) || 0;
+  const p = parseInt(document.getElementById('fPlazo').value) || 0;
+  const known = e + d + p;
+  document.getElementById('previewScore').textContent = known > 0 ? known + ' + precio⚡' : '—';
+}
+
+// ===== PRICE SCORING =====
+function recalcPriceScores(items) {
+  if (items.length === 1) { items[0].scores.Precio = 3; items[0].total = items[0].scores.Entregas+3+items[0].scores.Disponibilidad+items[0].scores.Plazo; return; }
+  const sorted = [...items].sort((a, b) => a.precio - b.precio);
+  items.forEach(c => {
+    const rank = sorted.findIndex(s => s.id === c.id);
+    if (items.length === 2) c.scores.Precio = rank === 0 ? 3 : 1;
+    else { if (rank === 0) c.scores.Precio = 3; else if (rank === sorted.length-1) c.scores.Precio = 1; else c.scores.Precio = 2; }
+    c.total = c.scores.Entregas + c.scores.Precio + c.scores.Disponibilidad + c.scores.Plazo;
+  });
+}
+
+// ===== AGREGAR COTIZACIÓN =====
+function agregarCotizacion() {
+  const fecha   = document.getElementById('fFecha').value;
+  const insumo  = document.getElementById('fInsumo').value.trim();
+  const codigo  = document.getElementById('fCodigo').value.trim();
+  const proveedor = document.getElementById('fProveedor').value.trim();
+  const cuenta  = document.getElementById('fCuenta').value.trim();
+  const cuit    = document.getElementById('fCuit').value.trim();
+  const precio  = parseFloat(document.getElementById('fPrecio').value);
+  const moneda  = document.getElementById('fMoneda').value;
+  const entregas = parseInt(document.getElementById('fEntregas').value);
+  const disponibilidad = parseInt(document.getElementById('fDisponibilidad').value);
+  const plazo   = parseInt(document.getElementById('fPlazo').value);
+
+  let ok = true;
+  ['fFecha','fInsumo','fCodigo','fProveedor','fPrecio'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el.value.trim()) { el.classList.add('needs-validation'); ok = false; }
+    else el.classList.remove('needs-validation');
+  });
+  if (!entregas || !disponibilidad || !plazo) { showToast('⚠️ Seleccioná Entregas, Disponibilidad y Plazo', 'var(--yellow)'); return; }
+  if (!ok) { showToast('⚠️ Completá todos los campos', 'var(--yellow)'); return; }
+  if (isNaN(precio) || precio <= 0) { showToast('⚠️ Ingresá un precio válido', 'var(--yellow)'); return; }
+
+  // Check duplicate: same insumo + proveedor
+  const existing = cotizaciones.find(c => c.codigo === codigo && c.proveedor.toLowerCase() === proveedor.toLowerCase());
+  if (existing) {
+    pendingUpdate = { existing, newData: { fecha, insumo, codigo, proveedor, cuenta, cuit, precio, moneda, entregas, disponibilidad, plazo } };
+    const pct = ((precio - existing.precio) / existing.precio * 100).toFixed(1);
+    const dir = precio > existing.precio ? '↑ sube' : precio < existing.precio ? '↓ baja' : '= igual';
+    document.getElementById('modalDupMsg').innerHTML =
+      `<strong>${proveedor}</strong> ya tiene un precio cargado para <strong>${insumo}</strong>.<br><br>
+       Precio actual: <strong>${existing.moneda} ${existing.precio.toFixed(2)}</strong><br>
+       Precio nuevo: <strong>${moneda} ${precio.toFixed(2)}</strong> &nbsp;<span style="color:${precio > existing.precio ? 'var(--red)' : 'var(--green)'}">${dir} ${Math.abs(pct)}%</span>`;
+    document.getElementById('modalDup').classList.add('open');
+    return;
+  }
+
+  _insertarCotizacion({ fecha, insumo, codigo, proveedor, cuenta, cuit, precio, moneda, entregas, disponibilidad, plazo });
+}
+
+async function _insertarCotizacion({ fecha, insumo, codigo, proveedor, cuenta, cuit, precio, moneda, entregas, disponibilidad, plazo }, isUpdate = false, oldPrecio = null) {
+  const histKey = codigo + '||' + insumo + '||' + proveedor.toLowerCase();
+
+  if (isUpdate) {
+    const idx = cotizaciones.findIndex(c => c.codigo === codigo && c.proveedor.toLowerCase() === proveedor.toLowerCase());
+    if (idx > -1) {
+      cotizaciones[idx].precio = precio;
+      cotizaciones[idx].fecha = fecha;
+      cotizaciones[idx].moneda = moneda;
+      cotizaciones[idx].scores.Entregas = entregas;
+      cotizaciones[idx].scores.Disponibilidad = disponibilidad;
+      cotizaciones[idx].scores.Plazo = plazo;
+    }
+  } else {
+    cotizaciones.push({
+      id: Date.now(),
+      fecha, insumo, codigo, proveedor, precio, moneda, cuenta, cuit,
+      scores: { Entregas: entregas, Precio: 0, Disponibilidad: disponibilidad, Plazo: plazo },
+      total: 0
+    });
+  }
+
+  // Historico in memory
+  if (!historico[histKey]) historico[histKey] = [];
+  const alreadyIn = historico[histKey].find(h => h.fecha === fecha && h.precio === precio);
+  if (!alreadyIn) historico[histKey].push({ fecha, precio, moneda });
+  historico[histKey].sort((a,b) => a.fecha.localeCompare(b.fecha));
+
+  const groupKey = codigo + '||' + insumo;
+  const groupItems = cotizaciones.filter(c => c.codigo + '||' + c.insumo === groupKey);
+  recalcPriceScores(groupItems);
+
+  renderResults();
+  resetForm();
+
+  // Save to Supabase
+  try {
+    if (isUpdate) {
+      const updated = cotizaciones.find(c => c.codigo === codigo && c.proveedor.toLowerCase() === proveedor.toLowerCase());
+      if (updated) await sbUpdateCotizacion(updated);
+      await sbUpdateAllScores(groupItems);
+    } else {
+      const newCot = cotizaciones[cotizaciones.length - 1];
+      await sbInsertCotizacion(newCot);
+      await sbUpdateAllScores(groupItems);
+    }
+    if (!alreadyIn) await sbInsertHistorico(histKey, { fecha, precio, moneda });
+    showToast(isUpdate ? '✓ Precio actualizado y guardado' : '✓ Cotización guardada en Supabase', 'var(--green)');
+  } catch(e) {
+    console.error('Supabase save error:', e);
+    showToast('⚠️ Error al guardar: ' + e.message, 'var(--red)');
+  }
+}
+
+// ===== MODAL DUPLICADO =====
+function confirmarActualizar() {
+  cerrarModal();
+  if (!pendingUpdate) return;
+  const { existing, newData } = pendingUpdate;
+  pendingUpdate = null;
+  _insertarCotizacion(newData, true, existing.precio);
+}
+
+function cerrarModal() {
+  document.getElementById('modalDup').classList.remove('open');
+  pendingUpdate = null;
+}
+
+// ===== RESET =====
+function resetForm() {
+  document.getElementById('fProveedor').value = '';
+  document.getElementById('fCuenta').value = '';
+  document.getElementById('fCuit').value = '';
+  document.getElementById('fPrecio').value = '';
+  document.getElementById('fEntregas').value = '';
+  document.getElementById('fDisponibilidad').value = '';
+  document.getElementById('fPlazo').value = '';
+  ['Entregas','Disponibilidad','Plazo'].forEach(g => {
+    document.getElementById('hint' + g).textContent = '—';
+  });
+  document.getElementById('hintPrecio').textContent = 'Comparado vs. otros del mismo insumo';
+  document.getElementById('previewScore').textContent = '—';
+}
+
+// ===== ELIMINAR =====
+async function eliminar(id) {
+  const target = cotizaciones.find(c => c.id === id);
+  cotizaciones = cotizaciones.filter(c => c.id !== id);
+  if (target) {
+    const groupKey = target.codigo + '||' + target.insumo;
+    const groupItems = cotizaciones.filter(c => c.codigo + '||' + c.insumo === groupKey);
+    if (groupItems.length > 0) {
+      recalcPriceScores(groupItems);
+      try { await sbUpdateAllScores(groupItems); } catch(e) {}
+    }
+  }
+  renderResults();
+  try {
+    await sbDeleteCotizacion(id);
+    showToast('✓ Eliminado', 'var(--red)');
+  } catch(e) {
+    showToast('⚠️ Error al eliminar: ' + e.message, 'var(--red)');
+  }
+}
+
+// ===== HISTÓRICO =====
+function verHistorico(codigo, insumo, proveedor) {
+  const histKey = codigo + '||' + insumo + '||' + proveedor.toLowerCase();
+  const entries = historico[histKey] || [];
+
+  document.getElementById('modalHistTitle').textContent = proveedor;
+  document.getElementById('modalHistSub').textContent = codigo + ' · ' + insumo;
+
+  if (!entries.length) {
+    document.getElementById('modalHistBody').innerHTML = '<p style="color:var(--muted);font-size:0.85rem;padding:1rem 0;">Sin histórico aún.</p>';
+  } else {
+    const maxPrice = Math.max(...entries.map(e => e.precio));
+    let rows = `<div class="hist-row hist-header">
+      <span>Fecha</span><span>Precio</span><span style="text-align:right;">Variación</span><span style="text-align:right;">vs anterior</span>
+    </div>`;
+    entries.forEach((e, i) => {
+      const prev = i > 0 ? entries[i-1].precio : null;
+      const pct = prev !== null ? ((e.precio - prev) / prev * 100).toFixed(1) : null;
+      const pctColor = pct === null ? 'var(--muted)' : parseFloat(pct) > 0 ? 'var(--red)' : parseFloat(pct) < 0 ? 'var(--green)' : 'var(--muted)';
+      const pctLabel = pct === null ? '—' : (parseFloat(pct) > 0 ? '↑ +' : parseFloat(pct) < 0 ? '↓ ' : '= ') + Math.abs(pct) + '%';
+      const barW = maxPrice > 0 ? Math.round((e.precio / maxPrice) * 100) : 0;
+      const barColor = parseFloat(pct) > 0 ? 'var(--red)' : parseFloat(pct) < 0 ? 'var(--green)' : 'var(--accent)';
+      rows += `<div class="hist-row">
+        <span style="font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--muted);">${formatDate(e.fecha)}</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span style="font-weight:600;font-family:'DM Mono',monospace;">${e.moneda} ${e.precio.toFixed(2)}</span>
+          <div class="hist-bar-wrap" style="width:80px;"><div class="hist-bar" style="width:${barW}%;background:${i===0 ? 'var(--accent)' : barColor};"></div></div>
+        </span>
+        <span style="text-align:right;color:${pctColor};font-weight:600;font-size:0.82rem;">${pctLabel}</span>
+        <span style="text-align:right;color:var(--muted);font-size:0.75rem;font-family:'DM Mono',monospace;">${prev !== null ? (e.moneda+' '+(e.precio-prev).toFixed(2).replace(/^(?!-)/, e.precio>prev?'+':'')) : '—'}</span>
+      </div>`;
+    });
+    document.getElementById('modalHistBody').innerHTML = `<div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">${rows}</div>`;
+  }
+  document.getElementById('modalHist').classList.add('open');
+}
+
+function cerrarModalHist() {
+  document.getElementById('modalHist').classList.remove('open');
+}
+
+// Close modals on backdrop click
+document.getElementById('modalDup').addEventListener('click', function(e){ if(e.target===this) cerrarModal(); });
+document.getElementById('modalHist').addEventListener('click', function(e){ if(e.target===this) cerrarModalHist(); });
+
+// ===== OPEN GROUPS =====
+const openGroups = new Set();
+
+function toggleGroup(safeKey) {
+  const body = document.getElementById('grp-' + safeKey);
+  const chev = document.getElementById('chev-' + safeKey);
+  if (!body) return;
+  if (openGroups.has(safeKey)) {
+    openGroups.delete(safeKey);
+    body.style.maxHeight = '0';
+    body.style.opacity = '0';
+    chev.style.transform = 'rotate(0deg)';
+  } else {
+    openGroups.add(safeKey);
+    body.style.maxHeight = (body.scrollHeight + 600) + 'px';
+    body.style.opacity = '1';
+    chev.style.transform = 'rotate(180deg)';
+  }
+}
+
+// ===== RENDER =====
+function renderResults() {
+  const container = document.getElementById('resultsContainer');
+  const statsBar = document.getElementById('statsBar');
+  const minNote = document.getElementById('minNote');
+
+  if (cotizaciones.length === 0) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">📦</div><p>Aún no hay cotizaciones cargadas.<br>Completá el formulario y comenzá.</p></div>`;
+    statsBar.style.display = 'none';
+    minNote.style.display = 'none';
+    return;
+  }
+
+  const groups = {};
+  cotizaciones.forEach(c => {
+    const key = c.codigo + '||' + c.insumo;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(c);
+  });
+
+  let html = '';
+  let totalWinners = 0;
+
+  Object.entries(groups).forEach(([key, items]) => {
+    const [codigo, insumo] = key.split('||');
+    const maxScore = Math.max(...items.map(i => i.total));
+    const winner = items.find(i => i.total === maxScore);
+    if (winner) totalWinners++;
+    const hasMin = items.length >= 3;
+    const safeKey = key.replace(/[^a-z0-9]/gi, '_');
+    const isOpen = openGroups.has(safeKey);
+
+    html += `<div class="insumo-block">
+      <div class="insumo-title" onclick="toggleGroup('${safeKey}')" style="cursor:pointer;user-select:none;">
+        <span class="code">${codigo}</span>
+        <span class="name">${insumo}</span>
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-left:auto;flex-wrap:wrap;">
+          ${hasMin
+            ? `<span style="font-size:0.7rem;color:var(--green);background:var(--green-bg);border:1px solid rgba(34,197,94,0.2);padding:0.15rem 0.5rem;border-radius:4px;white-space:nowrap;">★ ${winner.proveedor} · ${maxScore} pts</span>`
+            : `<span style="font-size:0.7rem;color:var(--yellow);background:var(--yellow-bg);border:1px solid rgba(245,158,11,0.2);padding:0.15rem 0.5rem;border-radius:4px;white-space:nowrap;">⚠️ falta mín.</span>`
+          }
+          <span class="count">${items.length} prov.</span>
+          <span id="chev-${safeKey}" style="color:var(--muted);font-size:0.75rem;transition:transform 0.28s;transform:rotate(${isOpen ? '180' : '0'}deg);">▼</span>
+        </div>
+      </div>
+      <div class="group-body" id="grp-${safeKey}" style="max-height:${isOpen ? '4000px' : '0'};opacity:${isOpen ? '1' : '0'};">
+        <div style="padding:0.75rem 1rem 1rem;">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th><th>Proveedor</th><th>Cotización</th>
+                  <th>Entregas</th><th>Precio</th><th>Disponib.</th><th>Plazo</th>
+                  <th>Puntaje</th><th></th>
+                </tr>
+              </thead>
+              <tbody>`;
+
+    items.sort((a, b) => b.total - a.total).forEach(c => {
+      const isWinner = c.total === maxScore;
+      const scoreClass = c.total >= 10 ? 'score-high' : c.total >= 7 ? 'score-mid' : 'score-low';
+      const histKey = c.codigo + '||' + c.insumo + '||' + c.proveedor.toLowerCase();
+      const histCount = (historico[histKey] || []).length;
+      html += `<tr class="${isWinner ? 'winner-row' : ''}">
+        <td class="td-date">${formatDate(c.fecha)}</td>
+        <td class="td-proveedor">${c.proveedor}${isWinner && hasMin ? ' <span style="color:var(--yellow);font-size:.8rem;">★</span>' : ''}</td>
+        <td class="td-price" style="color:${c.moneda === '$' ? 'var(--text)' : 'var(--accent)'};">${c.moneda} ${c.precio.toFixed(2)}</td>
+        <td>${chip(c.scores.Entregas)}</td>
+        <td>${chip(c.scores.Precio)}</td>
+        <td>${chip(c.scores.Disponibilidad)}</td>
+        <td>${chip(c.scores.Plazo)}</td>
+        <td class="score-cell"><span class="score-badge ${scoreClass}">${c.total}</span></td>
+        <td style="white-space:nowrap;">
+          <button class="btn-hist" onclick="verHistorico('${c.codigo.replace(/'/g,"\'")}','${c.insumo.replace(/'/g,"\'")}','${c.proveedor.replace(/'/g,"\'")}') " title="Ver histórico de precios">📈${histCount > 1 ? '<span style=\'font-size:0.6rem;margin-left:1px;\'>' + histCount + '</span>' : ''}</button>
+          <button class="btn-del" onclick="eliminar(${c.id})" title="Eliminar">✕</button>
+        </td>
+      </tr>`;
+    });
+
+    html += `</tbody></table></div></div></div></div>`;
+  });
+
+  container.innerHTML = `<div style="padding:0.75rem 1rem;">${html}</div>`;
+
+  statsBar.style.display = 'flex';
+  minNote.style.display = 'flex';
+  document.getElementById('statInsumos').textContent = Object.keys(groups).length;
+  document.getElementById('statProveedores').textContent = cotizaciones.length;
+  document.getElementById('statGanadores').textContent = totalWinners;
+  updateMenuCounts();
+}
+
+function chip(val) {
+  return `<span class="chip chip-${val}">${val}</span>`;
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const [y, m, day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+function showToast(msg, color = 'var(--green)') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = color;
+  t.style.color = color;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function toggleTheme() {
+  const htmlEl = document.documentElement;
+  const isLight = htmlEl.getAttribute('data-theme') === 'light';
+  if (isLight) {
+    htmlEl.removeAttribute('data-theme');
+    ['themeLabel2'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='Oscuro'; });
+    try { localStorage.setItem('evaluacion_theme', 'dark'); } catch(e) {} // persisted
+  } else {
+    htmlEl.setAttribute('data-theme', 'light');
+    ['themeLabel2'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent='Claro'; });
+    try { localStorage.setItem('evaluacion_theme', 'light'); } catch(e) {}
+  }
+}
+
+// ===== VIEWS =====
+let currentView = 'cotizaciones';
+let proveedoresMaestro = []; // list of {cuenta, cuit, denominacion, tel, email}
+
+function showView(view) {
+  currentView = view;
+  const mainApp = document.querySelector('.app');
+  if (mainApp) mainApp.style.display = view === 'cotizaciones' ? 'block' : 'none';
+  document.getElementById('view-proveedores').style.display = view === 'proveedores' ? 'block' : 'none';
+  document.getElementById('view-insumos').style.display = view === 'insumos' ? 'block' : 'none';
+
+  document.querySelectorAll('.menu-nav-btn').forEach(b => b.classList.remove('active'));
+  const navBtn = document.getElementById('mnav-' + view);
+  if (navBtn) navBtn.classList.add('active');
+
+  if (view === 'proveedores') renderProveedores();
+  if (view === 'insumos') renderInsumos();
+}
+
+function updateMenuCounts() {
+  // Count insumos con cotizaciones
+  const insumoKeys = new Set(cotizaciones.map(c => c.codigo + '||' + c.insumo));
+  const ic = document.getElementById('mnav-insumos-count');
+  if (ic) { ic.textContent = insumoKeys.size; ic.style.display = insumoKeys.size ? 'inline' : 'none'; }
+
+  // Count proveedores con cotizaciones
+  const provKeys = new Set(cotizaciones.map(c => c.proveedor.toLowerCase()));
+  const pc = document.getElementById('mnav-proveedores-count');
+  if (pc) { pc.textContent = provKeys.size; pc.style.display = provKeys.size ? 'inline' : 'none'; }
+}
+
+// ===== INSUMOS VIEW =====
+function renderInsumos() {
+  const container = document.getElementById('insumosList');
+  if (!container) return;
+
+  // Build unique insumos from cotizaciones
+  const insumoMap = {};
+  cotizaciones.forEach(c => {
+    const k = c.codigo + '||' + c.insumo;
+    if (!insumoMap[k]) insumoMap[k] = { codigo: c.codigo, insumo: c.insumo, proveedores: new Set(), precios: [], lastFecha: '' };
+    insumoMap[k].proveedores.add(c.proveedor);
+    insumoMap[k].precios.push(c.precio);
+    if (c.fecha > insumoMap[k].lastFecha) insumoMap[k].lastFecha = c.fecha;
+  });
+
+  let insumos = Object.values(insumoMap);
+
+  if (!insumos.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">📦</div><p>No hay insumos cotizados aún.<br>Cargá cotizaciones primero.</p></div>';
+    return;
+  }
+
+  // Apply search filter
+  const searchVal = (document.getElementById('searchInsumos')?.value || '').trim().toLowerCase();
+  if (searchVal) {
+    insumos = insumos.filter(i =>
+      i.codigo.toLowerCase().includes(searchVal) ||
+      i.insumo.toLowerCase().includes(searchVal)
+    );
+  }
+
+  if (!insumos.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>No se encontraron insumos con ese criterio.</p></div>';
+    return;
+  }
+
+  // Sort by insumo name
+  insumos.sort((a,b) => a.insumo.localeCompare(b.insumo));
+
+  container.innerHTML = insumos.map(ins => {
+    const minP = Math.min(...ins.precios);
+    const maxP = Math.max(...ins.precios);
+    const hasMin = ins.proveedores.size >= 3;
+    return `<div class="prov-card" style="cursor:pointer;" onclick="verComparativaInsumo('${ins.codigo.replace(/'/g,"\'")}','${ins.insumo.replace(/'/g,"\'")}')">
+      <div class="prov-avatar" style="background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:0.75rem;">${ins.codigo}</div>
+      <div class="prov-info">
+        <div class="prov-name">${ins.insumo}</div>
+        <div class="prov-meta">${ins.proveedores.size} proveedor${ins.proveedores.size!==1?'es':''} · última cotiz. ${formatDate(ins.lastFecha)}</div>
+        <div class="prov-stats">
+          Rango: $${minP.toFixed(2)} — $${maxP.toFixed(2)}
+          ${hasMin ? ' · <span style="color:var(--green);">✓ comparativa completa</span>' : ' · <span style="color:var(--yellow);">⚠️ falta mín. 3 proveedores</span>'}
+        </div>
+      </div>
+      <div style="color:var(--muted);font-size:1.2rem;">›</div>
+    </div>`;
+  }).join('');
+}
+
+function verComparativaInsumo(codigo, insumo) {
+  document.getElementById('modalInsumoTitle').textContent = insumo;
+  document.getElementById('modalInsumoSub').textContent = 'Código: ' + codigo;
+
+  // Get all cotizaciones for this insumo
+  const items = cotizaciones.filter(c => c.codigo === codigo && c.insumo === insumo);
+  items.sort((a,b) => b.total - a.total);
+  const maxScore = items.length ? Math.max(...items.map(i => i.total)) : 0;
+  const hasMin = items.length >= 3;
+
+  let html = '';
+
+  if (!hasMin) {
+    html += `<div style="background:var(--yellow-bg);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:0.75rem 1rem;font-size:0.8rem;color:var(--yellow);margin-bottom:1rem;">⚠️ Faltan ${3-items.length} proveedor${3-items.length!==1?'es':''} para completar la comparativa mínima.</div>`;
+  }
+
+  html += `<div class="table-wrap"><table><thead><tr>
+    <th>Proveedor</th><th>Fecha</th><th>Cotización</th>
+    <th>Entregas</th><th>Precio</th><th>Disponib.</th><th>Plazo</th><th>Puntaje</th>
+  </tr></thead><tbody>`;
+
+  items.forEach(c => {
+    const isWinner = c.total === maxScore && hasMin;
+    const scoreClass = c.total >= 10 ? 'score-high' : c.total >= 7 ? 'score-mid' : 'score-low';
+    html += `<tr class="${isWinner ? 'winner-row' : ''}">
+      <td class="td-proveedor">${c.proveedor}${isWinner ? ' <span style="color:var(--yellow);">★</span>' : ''}</td>
+      <td class="td-date">${formatDate(c.fecha)}</td>
+      <td class="td-price">${c.moneda} ${c.precio.toFixed(2)}</td>
+      <td>${chip(c.scores.Entregas)}</td>
+      <td>${chip(c.scores.Precio)}</td>
+      <td>${chip(c.scores.Disponibilidad)}</td>
+      <td>${chip(c.scores.Plazo)}</td>
+      <td class="score-cell"><span class="score-badge ${scoreClass}">${c.total}</span></td>
+    </tr>`;
+  });
+
+  html += '</tbody></table></div>';
+
+  document.getElementById('modalInsumoBody').innerHTML = html;
+  const modal = document.getElementById('modalInsumoComp');
+  modal.style.display = 'flex';
+}
+
+function cerrarModalInsumo() {
+  document.getElementById('modalInsumoComp').style.display = 'none';
+}
+
+document.getElementById('modalInsumoComp').addEventListener('click', function(e) {
+  if (e.target === this) cerrarModalInsumo();
+});
+
+// ===== SIDE PANEL =====
+function toggleMenu() {
+  const btn = document.getElementById('hamburgerBtn');
+  const overlay = document.getElementById('sideOverlay');
+  const panel = document.getElementById('sidePanel');
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) {
+    cerrarSidePanel();
+  } else {
+    btn.classList.add('open');
+    overlay.classList.add('open');
+    panel.classList.add('open');
+  }
+}
+
+function abrirSidePanel() {
+  document.getElementById('sideOverlay').classList.add('open');
+  document.getElementById('sidePanel').classList.add('open');
+}
+function cerrarSidePanel() {
+  document.getElementById('sideOverlay').classList.remove('open');
+  document.getElementById('sidePanel').classList.remove('open');
+  const btn = document.getElementById('hamburgerBtn');
+  if (btn) btn.classList.remove('open');
+}
+
+function toggleParams() {
+  const body = document.getElementById('paramsBody');
+  const chev = document.getElementById('paramsChevron');
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  chev.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+}
+
+// ===== PROVEEDORES ABM =====
+// Storage key for proveedores extras (added by user, beyond the CSV)
+// Proveedores extras stored in Supabase proveedores_maestro table
+
+async function cargarProveedoresMaestro() {
+  // Always start with the base CSV list
+  proveedoresMaestro = PROVEEDORES.map(p => ({
+    cuenta: p.cuenta, cuit: p.cuit, denominacion: p.denominacion, tel: '', email: ''
+  }));
+
+  // Merge in extras from Supabase
+  try {
+    const extras = await sbFetch('proveedores_maestro?order=denominacion.asc');
+    (extras || []).forEach(extra => {
+      const exists = proveedoresMaestro.find(p =>
+        p.denominacion.toLowerCase() === extra.denominacion.toLowerCase() ||
+        (p.cuenta && p.cuenta === extra.cuenta)
+      );
+      if (!exists) proveedoresMaestro.push({
+        cuenta: extra.cuenta || '',
+        cuit: extra.cuit || '',
+        denominacion: extra.denominacion,
+        tel: extra.tel || '',
+        email: extra.email || ''
+      });
+    });
+  } catch(e) { console.warn('Could not load proveedores from Supabase:', e); }
+
+  // Sync PROVEEDORES lookup with master list
+  syncProveedoresLookup();
+}
+
+function syncProveedoresLookup() {
+  // Make sure all proveedoresMaestro are in the PROVEEDORES search array
+  proveedoresMaestro.forEach(p => {
+    const exists = PROVEEDORES.find(x =>
+      x.denominacion.toLowerCase() === p.denominacion.toLowerCase()
+    );
+    if (!exists) PROVEEDORES.push({ cuenta: p.cuenta, cuit: p.cuit, denominacion: p.denominacion });
+  });
+}
+
+// No-op: saves happen per-operation via Supabase
+function guardarProveedoresExtra() {}
+
+async function agregarProveedor() {
+  const cuenta = document.getElementById('npCuenta').value.trim();
+  const cuit   = document.getElementById('npCuit').value.trim();
+  const nombre = document.getElementById('npNombre').value.trim();
+  const tel    = document.getElementById('npTel').value.trim();
+  const email  = document.getElementById('npEmail').value.trim();
+
+  if (!nombre) { showToast('⚠️ El nombre es obligatorio', 'var(--yellow)'); return; }
+
+  // Check duplicate
+  if (proveedoresMaestro.find(p => p.denominacion.toLowerCase() === nombre.toLowerCase())) {
+    showToast('⚠️ Ya existe un proveedor con ese nombre', 'var(--yellow)'); return;
+  }
+
+  const newProv = { cuenta, cuit, denominacion: nombre, tel, email };
+  proveedoresMaestro.push(newProv);
+
+  // Add to lookup immediately so it's usable in cotizaciones form
+  PROVEEDORES.push({ cuenta, cuit, denominacion: nombre });
+
+  // Save to Supabase
+  try {
+    await sbFetch('proveedores_maestro', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: JSON.stringify({ cuenta, cuit, denominacion: nombre, tel, email })
+    });
+    showToast('✓ Proveedor guardado en Supabase', 'var(--green)');
+  } catch(e) {
+    console.warn('Supabase save failed:', e);
+    showToast('⚠️ Error al guardar en Supabase: ' + e.message, 'var(--red)');
+    return;
+  }
+
+  ['npCuenta','npCuit','npNombre','npTel','npEmail'].forEach(id => document.getElementById(id).value = '');
+  renderProveedores();
+}
+
+async function eliminarProveedor(idx) {
+  const p = proveedoresMaestro[idx];
+  if (!confirm(`¿Eliminar a ${p.denominacion}?`)) return;
+
+  proveedoresMaestro.splice(idx, 1);
+
+  // Remove from PROVEEDORES lookup too
+  const li = PROVEEDORES.findIndex(x => x.denominacion.toLowerCase() === p.denominacion.toLowerCase());
+  if (li > -1) PROVEEDORES.splice(li, 1);
+
+  guardarProveedoresExtra();
+  renderProveedores();
+  showToast('✓ Proveedor eliminado', 'var(--red)');
+}
+
+function renderProveedores() {
+  const container = document.getElementById('proveedoresList');
+  if (!container) return;
+
+  if (!proveedoresMaestro.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🏢</div><p>No hay proveedores cargados aún.</p></div>';
+    return;
+  }
+
+  // Build stats per proveedor from cotizaciones
+  const statsMap = {};
+  cotizaciones.forEach(c => {
+    const key = c.proveedor.toLowerCase();
+    if (!statsMap[key]) statsMap[key] = { insumos: new Set(), lastFecha: '' };
+    statsMap[key].insumos.add(c.codigo + '||' + c.insumo);
+    if (c.fecha > statsMap[key].lastFecha) statsMap[key].lastFecha = c.fecha;
+  });
+
+  // Apply search filter
+  const searchProv = (document.getElementById('searchProveedores')?.value || '').trim().toLowerCase();
+  const filteredProvs = searchProv
+    ? proveedoresMaestro.filter((p, i) =>
+        p.denominacion.toLowerCase().includes(searchProv) ||
+        p.cuenta.toLowerCase().includes(searchProv) ||
+        p.cuit.includes(searchProv)
+      )
+    : proveedoresMaestro;
+
+  if (!filteredProvs.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div><p>No se encontraron proveedores con ese criterio.</p></div>';
+    return;
+  }
+
+  container.innerHTML = filteredProvs.map((p, i) => {
+    const realIdx = proveedoresMaestro.indexOf(p);
+    i = realIdx;
+    const stats = statsMap[p.denominacion.toLowerCase()];
+    const insumoCount = stats ? stats.insumos.size : 0;
+    const lastDate = stats ? formatDate(stats.lastFecha) : '—';
+    const initials = p.denominacion.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+    return `<div class="prov-card">
+      <div class="prov-avatar">${initials}</div>
+      <div class="prov-info">
+        <div class="prov-name">${p.denominacion}</div>
+        <div class="prov-meta">
+          ${p.cuenta ? 'Cta: ' + p.cuenta : ''}
+          ${p.cuenta && p.cuit ? ' · ' : ''}
+          ${p.cuit ? 'CUIT: ' + p.cuit : ''}
+        </div>
+        ${p.tel || p.email ? `<div class="prov-meta" style="margin-top:0.2rem;">${p.tel ? '📞 '+p.tel : ''} ${p.email ? '✉️ '+p.email : ''}</div>` : ''}
+        <div class="prov-stats">${insumoCount} insumo${insumoCount!==1?'s':''} cotizados · última cotiz. ${lastDate}</div>
+      </div>
+      <div class="prov-actions">
+        ${insumoCount > 0 ? `<button class="btn-prov-hist" onclick="verHistorialProveedor('${p.denominacion.replace(/'/g,"\'")}')">📈 Ver historial</button>` : ''}
+        <button class="btn-prov-del" onclick="eliminarProveedor(${i})" title="Eliminar proveedor">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function verHistorialProveedor(nombreProv) {
+  document.getElementById('modalProvHistTitle').textContent = nombreProv;
+
+  // Find all insumos this proveedor has cotized
+  const insumoKeys = {};
+  cotizaciones.forEach(c => {
+    if (c.proveedor.toLowerCase() === nombreProv.toLowerCase()) {
+      const k = c.codigo + '||' + c.insumo;
+      insumoKeys[k] = { codigo: c.codigo, insumo: c.insumo };
+    }
+  });
+
+  const insumoList = Object.values(insumoKeys);
+  document.getElementById('modalProvHistSub').textContent = insumoList.length + ' insumo' + (insumoList.length!==1?'s':'') + ' cotizados';
+
+  if (!insumoList.length) {
+    document.getElementById('modalProvHistBody').innerHTML = '<p style="color:var(--muted);font-size:0.85rem;">Este proveedor no tiene cotizaciones cargadas aún.</p>';
+  } else {
+    let html = '';
+    insumoList.forEach(({ codigo, insumo }) => {
+      const histKey = codigo + '||' + insumo + '||' + nombreProv.toLowerCase();
+      const entries = historico[histKey] || [];
+      const maxPrice = entries.length ? Math.max(...entries.map(e => e.precio)) : 0;
+
+      html += `<div class="hist-prov-insumo">
+        <div class="hist-prov-insumo-title">
+          <span style="font-family:'DM Mono',monospace;color:var(--accent);font-size:0.75rem;">${codigo}</span>
+          <span>${insumo}</span>
+          <span style="margin-left:auto;color:var(--muted);font-size:0.72rem;">${entries.length} registro${entries.length!==1?'s':''}</span>
+        </div>`;
+
+      if (entries.length) {
+        html += `<div style="border-top:1px solid var(--border);">
+          <div class="hist-row hist-header"><span>Fecha</span><span>Precio</span><span style="text-align:right;">Variación</span><span style="text-align:right;">Diferencia</span></div>`;
+        entries.forEach((e, i) => {
+          const prev = i > 0 ? entries[i-1].precio : null;
+          const pct = prev !== null ? ((e.precio - prev) / prev * 100).toFixed(1) : null;
+          const pctColor = pct === null ? 'var(--muted)' : parseFloat(pct) > 0 ? 'var(--red)' : parseFloat(pct) < 0 ? 'var(--green)' : 'var(--muted)';
+          const pctLabel = pct === null ? '—' : (parseFloat(pct) > 0 ? '↑ +' : parseFloat(pct) < 0 ? '↓ ' : '= ') + Math.abs(pct) + '%';
+          const barW = maxPrice > 0 ? Math.round((e.precio / maxPrice) * 100) : 0;
+          html += `<div class="hist-row">
+            <span style="font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--muted);">${formatDate(e.fecha)}</span>
+            <span style="display:flex;align-items:center;gap:6px;">
+              <span style="font-weight:600;font-family:'DM Mono',monospace;">${e.moneda} ${e.precio.toFixed(2)}</span>
+              <div class="hist-bar-wrap" style="width:60px;"><div class="hist-bar" style="width:${barW}%;background:${i===0?'var(--accent)':parseFloat(pct||0)>0?'var(--red)':'var(--green)'};"></div></div>
+            </span>
+            <span style="text-align:right;color:${pctColor};font-weight:600;font-size:0.82rem;">${pctLabel}</span>
+            <span style="text-align:right;color:var(--muted);font-size:0.75rem;font-family:'DM Mono',monospace;">${prev!==null?(e.moneda+' '+(e.precio-prev>=0?'+':'')+(e.precio-prev).toFixed(2)):'—'}</span>
+          </div>`;
+        });
+        html += '</div>';
+      } else {
+        html += '<div style="padding:0.75rem 1rem;font-size:0.82rem;color:var(--muted);">Sin registros históricos aún.</div>';
+      }
+      html += '</div>';
+    });
+    document.getElementById('modalProvHistBody').innerHTML = html;
+  }
+
+  const modal = document.getElementById('modalProvHist');
+  modal.style.display = 'flex';
+}
+
+// ===== BOOT =====
+async function boot() {
+  await cargarDB();
+  await cargarProveedoresMaestro();
+  showView('cotizaciones');
+}
+boot();
+</script>
+</body>
+</html>
